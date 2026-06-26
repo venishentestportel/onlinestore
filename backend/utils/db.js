@@ -13,11 +13,14 @@ if (useSupabase) {
   console.log('Supabase credentials missing. Running in local JSON database mode.');
 }
 
-const mockDbPath = path.join(__dirname, '..', '..', 'database', 'mock_db.json');
+const isServerless = process.env.NETLIFY || process.env.LAMBDA_TASK_ROOT || process.env.AWS_EXECUTION_ENV;
+const mockDbPath = isServerless 
+  ? path.join(require('os').tmpdir(), 'mock_db.json') 
+  : path.join(__dirname, '..', '..', 'database', 'mock_db.json');
 
-// Ensure database directory exists
+// Ensure database directory exists (only in non-serverless)
 const dbDir = path.dirname(mockDbPath);
-if (!fs.existsSync(dbDir)) {
+if (!isServerless && !fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }
 

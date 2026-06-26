@@ -3,8 +3,10 @@ const QRCode = require('qrcode');
 const fs = require('fs');
 const path = require('path');
 
-const invoiceDir = path.join(__dirname, '..', '..', 'public', 'invoices');
-if (!fs.existsSync(invoiceDir)) {
+const os = require('os');
+const isServerless = process.env.NETLIFY || process.env.LAMBDA_TASK_ROOT || process.env.AWS_EXECUTION_ENV;
+const invoiceDir = isServerless ? os.tmpdir() : path.join(__dirname, '..', '..', 'public', 'invoices');
+if (!isServerless && !fs.existsSync(invoiceDir)) {
   fs.mkdirSync(invoiceDir, { recursive: true });
 }
 
