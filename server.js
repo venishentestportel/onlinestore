@@ -14,11 +14,14 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Ensure upload & invoice directories exist
+// Ensure upload & invoice directories exist (only in non-serverless environments)
+const isServerless = process.env.NETLIFY || process.env.LAMBDA_TASK_ROOT || process.env.AWS_EXECUTION_ENV;
 const publicUploads = path.join(__dirname, 'public', 'uploads');
 const publicInvoices = path.join(__dirname, 'public', 'invoices');
-if (!fs.existsSync(publicUploads)) fs.mkdirSync(publicUploads, { recursive: true });
-if (!fs.existsSync(publicInvoices)) fs.mkdirSync(publicInvoices, { recursive: true });
+if (!isServerless) {
+  if (!fs.existsSync(publicUploads)) fs.mkdirSync(publicUploads, { recursive: true });
+  if (!fs.existsSync(publicInvoices)) fs.mkdirSync(publicInvoices, { recursive: true });
+}
 
 // Static folders
 app.use('/css', express.static(path.join(__dirname, 'css')));
