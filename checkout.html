@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - OpenCarta</title>
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: { 950: '#0b0f19' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+  <!-- Shared Header -->
+  <header id="main-header" class="w-full"></header>
+
+  <!-- CHECKOUT WIZARD CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
+    
+    <div class="mb-8">
+      <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white font-heading">Secure Checkout</h1>
+      <p class="text-xs text-gray-400">Complete your transaction with multi-tier encrypted security.</p>
+    </div>
+
+    <!-- Wizard Steps Indicator -->
+    <div class="flex items-center justify-center gap-2 max-w-lg mx-auto mb-10 text-xs font-bold text-gray-400">
+      <span id="indicator-step-1" class="text-indigo-600 dark:text-indigo-400">1. Address</span>
+      <span>&rarr;</span>
+      <span id="indicator-step-2">2. Shipping</span>
+      <span>&rarr;</span>
+      <span id="indicator-step-3">3. Payment</span>
+      <span>&rarr;</span>
+      <span id="indicator-step-4">4. Confirmation</span>
+    </div>
+
+    <!-- Main grid split -->
+    <div id="checkout-main-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      
+      <!-- Wizard Body -->
+      <div class="lg:col-span-2 space-y-6">
+        
+        <!-- STEP 1: Address form -->
+        <div id="step-content-1" class="glass-panel p-8 rounded-3xl border border-gray-100 dark:border-slate-800 space-y-6">
+          <h3 class="font-bold text-base text-slate-800 dark:text-white">Shipping Address</h3>
+          <form id="address-form" onsubmit="saveStep1(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+              <label class="block text-xs font-bold text-gray-500 mb-1.5">FULL NAME</label>
+              <input type="text" id="ship-name" required placeholder="John Doe" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-xs font-bold text-gray-500 mb-1.5">ADDRESS LINE</label>
+              <input type="text" id="ship-address" required placeholder="Apt, Suite, Street name" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-500 mb-1.5">CITY</label>
+              <input type="text" id="ship-city" required placeholder="San Francisco" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-500 mb-1.5">STATE / REGION</label>
+              <input type="text" id="ship-state" required placeholder="California" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-500 mb-1.5">ZIP CODE</label>
+              <input type="text" id="ship-zipcode" required placeholder="94103" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-500 mb-1.5">PHONE NUMBER</label>
+              <input type="tel" id="ship-phone" required placeholder="+1 (555) 123-4567" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+            </div>
+            <div class="md:col-span-2 pt-2">
+              <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/20 transition">
+                Continue to Shipping Method &rarr;
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- STEP 2: Shipping method selector -->
+        <div id="step-content-2" class="glass-panel p-8 rounded-3xl border border-gray-100 dark:border-slate-800 space-y-6 hidden">
+          <h3 class="font-bold text-base text-slate-800 dark:text-white">Shipping Method</h3>
+          <div class="space-y-3">
+            <label onclick="selectShippingCarrier(15, 'Standard Ground')" class="flex items-center justify-between p-4 rounded-2xl border border-indigo-600 bg-indigo-50/20 dark:bg-indigo-950/10 cursor-pointer transition">
+              <div class="flex items-center gap-3">
+                <input type="radio" name="shipping-carrier" value="15" checked class="text-indigo-600">
+                <div>
+                  <p class="text-xs font-bold text-slate-800 dark:text-slate-200">Standard Ground Logistics</p>
+                  <p class="text-[10px] text-gray-400">Delivered within 3-5 business days</p>
+                </div>
+              </div>
+              <span id="carrier-price-standard" class="text-xs font-extrabold text-indigo-600 dark:text-indigo-400">$15.00</span>
+            </label>
+            <label onclick="selectShippingCarrier(35, 'Express Carrier')" class="flex items-center justify-between p-4 rounded-2xl border border-gray-200 dark:border-slate-800 cursor-pointer transition">
+              <div class="flex items-center gap-3">
+                <input type="radio" name="shipping-carrier" value="35" class="text-indigo-600">
+                <div>
+                  <p class="text-xs font-bold text-slate-800 dark:text-slate-200">Express Priority Air</p>
+                  <p class="text-[10px] text-gray-400">Delivered within 24-48 hours</p>
+                </div>
+              </div>
+              <span class="text-xs font-extrabold text-slate-800 dark:text-slate-200">$35.00</span>
+            </label>
+          </div>
+          <div class="flex gap-4">
+            <button onclick="gotoStep(1)" class="px-6 py-3 border border-gray-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition">Back</button>
+            <button onclick="gotoStep(3)" class="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow transition">Continue to Payment &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Payment integration -->
+        <div id="step-content-3" class="glass-panel p-8 rounded-3xl border border-gray-100 dark:border-slate-800 space-y-6 hidden">
+          <h3 class="font-bold text-base text-slate-800 dark:text-white">Payment Method</h3>
+          
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+            <button onclick="selectPayMethod('stripe')" id="pay-btn-stripe" class="p-3 border border-indigo-600 bg-indigo-50/20 text-indigo-600 rounded-xl text-xs font-bold text-center">Credit Card</button>
+            <button onclick="selectPayMethod('upi')" id="pay-btn-upi" class="p-3 border border-gray-200 dark:border-slate-800 rounded-xl text-xs font-bold text-center">UPI Transfer</button>
+            <button onclick="selectPayMethod('wallet')" id="pay-btn-wallet" class="p-3 border border-gray-200 dark:border-slate-800 rounded-xl text-xs font-bold text-center">Wallet Points</button>
+            <button onclick="selectPayMethod('paypal')" id="pay-btn-paypal" class="p-3 border border-gray-200 dark:border-slate-800 rounded-xl text-xs font-bold text-center">PayPal</button>
+            <button onclick="selectPayMethod('razorpay')" id="pay-btn-razorpay" class="p-3 border border-gray-200 dark:border-slate-800 rounded-xl text-xs font-bold text-center">Razorpay</button>
+            <button onclick="selectPayMethod('cod')" id="pay-btn-cod" class="p-3 border border-gray-200 dark:border-slate-800 rounded-xl text-xs font-bold text-center">Cash on Delivery</button>
+          </div>
+
+          <!-- Stripe simulation block -->
+          <div id="pay-panel-stripe" class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-500 mb-1.5">CREDIT CARD NUMBER</label>
+              <input type="text" placeholder="4242 •••• •••• 4242" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1.5">EXPIRATION DATE</label>
+                <input type="text" placeholder="MM/YY" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1.5">CVC / CVV</label>
+                <input type="text" placeholder="123" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+              </div>
+            </div>
+          </div>
+
+          <!-- UPI dynamic QR block -->
+          <div id="pay-panel-upi" class="space-y-4 hidden text-center flex flex-col items-center">
+            <p class="text-xs text-gray-400">Scan this dynamically generated merchant UPI code to verify payout transfer.</p>
+            <div id="upi-qr-box" class="w-48 h-48 bg-gray-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center border border-gray-200 dark:border-slate-800 overflow-hidden">
+              <span class="text-xs text-gray-400">Requesting code...</span>
+            </div>
+            <div class="text-[10px] text-gray-400">Merchant VPA: <span class="font-bold text-indigo-500">merchant@marketplace</span></div>
+          </div>
+
+          <!-- Wallet points block -->
+          <div id="pay-panel-wallet" class="space-y-3 hidden">
+            <p class="text-xs text-gray-400">Deduct transaction amount directly from loyalty reward balance.</p>
+            <div class="p-4 rounded-xl border border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 flex justify-between items-center text-xs">
+              <span class="font-bold">Your Reward Balance:</span>
+              <span id="wallet-points-balance" class="font-extrabold text-indigo-600 dark:text-indigo-400">250 points</span>
+            </div>
+            <p id="wallet-deduction-info" class="text-[10px] text-amber-500 font-semibold"></p>
+          </div>
+
+          <!-- Sandbox status alert info -->
+          <div id="pay-panel-generic" class="text-xs text-gray-400 hidden">
+            Clicking order placement will call sandbox verification handlers.
+          </div>
+
+          <div class="flex gap-4 pt-4">
+            <button onclick="gotoStep(2)" class="px-6 py-3 border border-gray-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition">Back</button>
+            <button onclick="submitOrder()" class="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/20 transition flex items-center justify-center gap-2">
+              🔐 Authorize & Place Order
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 4: Confirmation screen -->
+        <div id="step-content-4" class="glass-panel p-8 rounded-3xl border border-gray-100 dark:border-slate-800 text-center space-y-6 hidden">
+          <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/10">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
+          <div class="space-y-2">
+            <h3 class="font-bold text-lg text-slate-800 dark:text-white font-heading">Order Placed Successfully!</h3>
+            <p class="text-xs text-gray-400">Thank you for your business. Your receipt details are logged.</p>
+            <p class="text-xs font-bold text-indigo-500">Order ID: <span id="confirm-order-id">ORD-xxx</span></p>
+          </div>
+
+          <div class="max-w-xs mx-auto pt-2 space-y-3">
+            <a id="confirm-invoice-link" href="#" target="_blank" class="w-full py-3 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition flex items-center justify-center gap-2">
+              📥 Download PDF Invoice Receipt
+            </a>
+            <a href="/customer/index.html" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow transition flex items-center justify-center">
+              View Dashboard Status
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Order Overview -->
+      <div id="checkout-summary-column" class="glass-panel p-6 rounded-3xl border border-gray-100 dark:border-slate-800 space-y-4">
+        <h3 class="font-bold text-sm text-slate-800 dark:text-white">Order Summary</h3>
+        <div id="checkout-items-list" class="space-y-3 divide-y divide-gray-50 dark:divide-slate-800/40"></div>
+        <hr class="border-gray-50 dark:border-slate-800">
+        
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between text-gray-400">
+            <span>Items Subtotal</span>
+            <span id="summary-subtotal" class="font-bold text-slate-700 dark:text-slate-200">$0.00</span>
+          </div>
+          <div class="flex justify-between text-gray-400">
+            <span>Shipping cost</span>
+            <span id="summary-shipping" class="font-bold text-slate-700 dark:text-slate-200">$15.00</span>
+          </div>
+          <div class="flex justify-between text-gray-400">
+            <span>Sales tax</span>
+            <span id="summary-tax" class="font-bold text-slate-700 dark:text-slate-200">$0.00</span>
+          </div>
+          <div id="summary-discount-row" class="flex justify-between text-rose-500 font-semibold hidden">
+            <span>Coupon applied</span>
+            <span id="summary-discount">-$0.00</span>
+          </div>
+          <div class="flex justify-between text-sm font-extrabold text-slate-800 dark:text-white pt-2">
+            <span>Checkout Total</span>
+            <span id="summary-total">$0.00</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Shared Footer -->
+  <footer id="main-footer" class="w-full"></footer>
+
+  <!-- Scripts -->
+  <script src="/js/supabase-client.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chat.js"></script>
+
+  <script>
+    let activeStep = 1;
+    let selectedCarrierPrice = 15;
+    let selectedPayment = 'stripe';
+    let addressInfo = null;
+
+    // Load active user's points
+    function loadRewardPoints() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user) {
+        document.getElementById('wallet-points-balance').innerText = `${user.reward_points || 0} points`;
+      }
+    }
+
+    function renderSummary() {
+      const cart = cartHelper.getCart();
+      const list = document.getElementById('checkout-items-list');
+      if (!list) return;
+
+      const cartCurrency = cart.length > 0 ? (cart[0].currency || 'USD') : 'USD';
+
+      list.innerHTML = cart.map(item => `
+        <div class="flex items-center justify-between gap-3 pt-2 text-xs">
+          <span class="text-gray-400 truncate flex-1 font-medium">${item.product_title} <span class="font-bold">x${item.quantity}</span></span>
+          <span class="font-bold text-slate-800 dark:text-slate-200">${formatPrice(item.price * item.quantity, item.currency)}</span>
+        </div>
+      `).join('');
+
+      // Calculations
+      const subtotal = cartHelper.getSubtotal();
+      
+      // If subtotal is free shipping, update label
+      if (subtotal > 150 && selectedCarrierPrice === 15) {
+        selectedCarrierPrice = 0;
+        document.getElementById('carrier-price-standard').innerText = 'FREE';
+      } else if (selectedCarrierPrice === 15) {
+        document.getElementById('carrier-price-standard').innerText = formatPrice(15, cartCurrency);
+      }
+
+      const shipping = selectedCarrierPrice;
+      const tax = subtotal * 0.08;
+      
+      // Load applied coupon from cart page
+      let discount = 0;
+      const couponJson = localStorage.getItem('checkout_coupon');
+      if (couponJson) {
+        const coupon = JSON.parse(couponJson);
+        if (coupon.type === 'percentage') {
+          discount = subtotal * (coupon.value / 100);
+        } else if (coupon.type === 'fixed_amount') {
+          discount = coupon.value;
+        }
+        
+        document.getElementById('summary-discount').innerText = '-' + formatPrice(discount, cartCurrency);
+        document.getElementById('summary-discount-row').classList.remove('hidden');
+      }
+
+      const total = Math.max(0, subtotal + tax + shipping - discount);
+
+      document.getElementById('summary-subtotal').innerText = formatPrice(subtotal, cartCurrency);
+      document.getElementById('summary-shipping').innerText = shipping === 0 ? 'FREE' : formatPrice(shipping, cartCurrency);
+      document.getElementById('summary-tax').innerText = formatPrice(tax, cartCurrency);
+      document.getElementById('summary-total').innerText = formatPrice(total, cartCurrency);
+
+      // Update wallet info text
+      const pointsNeeded = Math.ceil(total * 10);
+      document.getElementById('wallet-deduction-info').innerText = `Deduction rate: 10 points = ${formatPrice(1, cartCurrency)}. This checkout requires: ${pointsNeeded} points.`;
+    }
+
+    function gotoStep(step) {
+      // Hide all content blocks
+      [1, 2, 3, 4].forEach(i => {
+        const content = document.getElementById(`step-content-${i}`);
+        if (content) content.classList.add('hidden');
+        
+        const ind = document.getElementById(`indicator-step-${i}`);
+        if (ind) ind.className = '';
+      });
+
+      // Show target step
+      document.getElementById(`step-content-${step}`).classList.remove('hidden');
+      document.getElementById(`indicator-step-${step}`).className = 'text-indigo-600 dark:text-indigo-400 font-extrabold';
+      activeStep = step;
+
+      // Handle custom events on step switches
+      if (step === 3) {
+        loadRewardPoints();
+        // If UPI is chosen, trigger dynamic QR code generation
+        if (selectedPayment === 'upi') {
+          loadUpiQrCode();
+        }
+      }
+    }
+
+    function saveStep1(e) {
+      e.preventDefault();
+      addressInfo = {
+        fullName: document.getElementById('ship-name').value.trim(),
+        addressLine: document.getElementById('ship-address').value.trim(),
+        city: document.getElementById('ship-city').value.trim(),
+        state: document.getElementById('ship-state').value.trim(),
+        zipCode: document.getElementById('ship-zipcode').value.trim(),
+        phone: document.getElementById('ship-phone').value.trim()
+      };
+      
+      gotoStep(2);
+    }
+
+    function selectShippingCarrier(price, name) {
+      selectedCarrierPrice = price;
+      renderSummary();
+    }
+
+    function selectPayMethod(method) {
+      selectedPayment = method;
+
+      // Reset payment button styles
+      ['stripe', 'upi', 'wallet', 'paypal', 'razorpay', 'cod'].forEach(m => {
+        const btn = document.getElementById(`pay-btn-${m}`);
+        if (btn) btn.className = "p-3 border border-gray-200 dark:border-slate-800 rounded-xl text-xs font-bold text-center dark:text-slate-300 bg-white dark:bg-slate-900 transition";
+      });
+
+      // Highlight selected button
+      document.getElementById(`pay-btn-${method}`).className = "p-3 border border-indigo-600 bg-indigo-50/20 text-indigo-600 rounded-xl text-xs font-bold text-center";
+
+      // Hide all panels
+      document.getElementById('pay-panel-stripe').classList.add('hidden');
+      document.getElementById('pay-panel-upi').classList.add('hidden');
+      document.getElementById('pay-panel-wallet').classList.add('hidden');
+      document.getElementById('pay-panel-generic').classList.add('hidden');
+
+      if (method === 'stripe') {
+        document.getElementById('pay-panel-stripe').classList.remove('hidden');
+      } else if (method === 'upi') {
+        document.getElementById('pay-panel-upi').classList.remove('hidden');
+        loadUpiQrCode();
+      } else if (method === 'wallet') {
+        document.getElementById('pay-panel-wallet').classList.remove('hidden');
+      } else {
+        document.getElementById('pay-panel-generic').classList.remove('hidden');
+      }
+    }
+
+    async function loadUpiQrCode() {
+      const subtotal = cartHelper.getSubtotal();
+      const shipping = selectedCarrierPrice;
+      const tax = subtotal * 0.08;
+      
+      let discount = 0;
+      const couponJson = localStorage.getItem('checkout_coupon');
+      if (couponJson) {
+        const coupon = JSON.parse(couponJson);
+        discount = coupon.type === 'percentage' ? subtotal * (coupon.value / 100) : coupon.value;
+      }
+      
+      const total = Math.max(0, subtotal + tax + shipping - discount);
+      const box = document.getElementById('upi-qr-box');
+      box.innerHTML = `<span class="text-xs text-gray-400">Generating UPI QR...</span>`;
+
+      try {
+        const qr = await apiClient.payments.generateUpiQr(total);
+        box.innerHTML = `<img src="${qr.qr_code_url}" class="w-full h-full object-cover">`;
+      } catch (err) {
+        box.innerHTML = `<span class="text-xs text-rose-500">Failed to render QR code</span>`;
+      }
+    }
+
+    async function submitOrder() {
+      const cart = cartHelper.getCart();
+      const couponJson = localStorage.getItem('checkout_coupon');
+      const coupon = couponJson ? JSON.parse(couponJson) : null;
+      
+      // Calculate wallet deduction validation
+      if (selectedPayment === 'wallet') {
+        const subtotal = cartHelper.getSubtotal();
+        const total = subtotal + (subtotal * 0.08) + selectedCarrierPrice - (coupon ? (coupon.type === 'percentage' ? subtotal * (coupon.value / 100) : coupon.value) : 0);
+        
+        try {
+          await apiClient.payments.payWithWallet(total);
+        } catch (err) {
+          return showToast(err.message, 'error');
+        }
+      }
+
+      showToast('Processing secure checkout...', 'info');
+
+      try {
+        const orderData = {
+          items: cart.map(i => ({ product_id: i.product_id, variant_id: i.variant_id, quantity: i.quantity })),
+          coupon_code: coupon ? coupon.code : null,
+          shipping_address: addressInfo,
+          payment_method: selectedPayment,
+          payment_details: {
+            card_brand: selectedPayment === 'stripe' ? 'Visa' : null,
+            status: selectedPayment === 'cod' ? 'pending' : 'paid'
+          }
+        };
+
+        const res = await apiClient.orders.create(orderData);
+        
+        // Success: clear cart and details
+        cartHelper.clearCart();
+        localStorage.removeItem('checkout_coupon');
+
+        // Render confirmation step
+        document.getElementById('confirm-order-id').innerText = res.orderId.toUpperCase();
+        document.getElementById('confirm-invoice-link').href = res.invoiceUrl;
+        
+        // Hide order overview column
+        document.getElementById('checkout-summary-column').classList.add('hidden');
+        
+        gotoStep(4);
+        showToast('Order Authorized Successfully!', 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Direct redirect if cart empty
+      if (cartHelper.getCartCount() === 0) {
+        window.location.href = '/cart.html';
+        return;
+      }
+      renderSummary();
+    });
+  </script>
+</body>
+</html>

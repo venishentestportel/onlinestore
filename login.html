@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In / Register - OpenCarta</title>
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: { 950: '#0b0f19' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+  <!-- Main header container -->
+  <header id="main-header" class="w-full"></header>
+
+  <!-- Login Main Content -->
+  <main class="flex-1 flex items-center justify-center p-6 my-12">
+    <div class="w-full max-w-md bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-gray-100 dark:border-slate-800 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+      <!-- Background Gradients -->
+      <div class="absolute -top-24 -left-24 w-48 h-48 rounded-full bg-indigo-500/10 blur-2xl"></div>
+      <div class="absolute -bottom-24 -right-24 w-48 h-48 rounded-full bg-pink-500/10 blur-2xl"></div>
+
+      <!-- Header -->
+      <div class="text-center mb-8 relative z-10">
+        <h2 id="auth-title" class="text-2xl font-extrabold text-slate-800 dark:text-white">Welcome Back</h2>
+        <p id="auth-subtitle" class="text-xs text-gray-400 mt-1.5">Sign in to manage your orders, wishlist, and profile.</p>
+      </div>
+
+      <!-- Authentication Tabs -->
+      <div class="flex border-b border-gray-100 dark:border-slate-800 mb-6 relative z-10">
+        <button onclick="switchAuthTab('login')" id="tab-login" class="flex-1 pb-3 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400">Login</button>
+        <button onclick="switchAuthTab('register')" id="tab-register" class="flex-1 pb-3 text-sm font-semibold text-gray-400 hover:text-gray-600 dark:hover:text-slate-200">Register</button>
+        <button onclick="switchAuthTab('otp')" id="tab-otp" class="flex-1 pb-3 text-sm font-semibold text-gray-400 hover:text-gray-600 dark:hover:text-slate-200">OTP Sign In</button>
+      </div>
+
+      <!-- Email Login Form -->
+      <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4 relative z-10" autocomplete="off">
+        <div>
+          <label class="block text-xs font-bold text-gray-500 mb-1.5">EMAIL ADDRESS</label>
+          <input type="email" id="login-email" required placeholder="name@example.com" autocomplete="off" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+        </div>
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="block text-xs font-bold text-gray-500">PASSWORD</label>
+            <button type="button" onclick="handleForgotPassword()" class="text-xs text-indigo-600 hover:underline dark:text-indigo-400 font-semibold">Forgot?</button>
+          </div>
+          <div class="relative">
+            <input type="password" id="login-password" required placeholder="••••••••" autocomplete="off" class="w-full pl-4 pr-12 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+            <button type="button" onclick="togglePasswordVisibility('login-password', 'login-password-toggle-icon')" class="absolute right-3.5 top-3 text-gray-400 hover:text-indigo-500 focus:outline-none transition">
+              <svg id="login-password-toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/20 transition">Sign In</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4 relative z-10 hidden">
+        <div>
+          <label class="block text-xs font-bold text-gray-500 mb-1.5">FULL NAME</label>
+          <input type="text" id="reg-name" placeholder="John Doe" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 mb-1.5">EMAIL ADDRESS</label>
+          <input type="email" id="reg-email" placeholder="name@example.com" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 mb-1.5">PASSWORD</label>
+          <div class="relative">
+            <input type="password" id="reg-password" placeholder="Min. 8 characters" autocomplete="off" class="w-full pl-4 pr-12 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+            <button type="button" onclick="togglePasswordVisibility('reg-password', 'reg-password-toggle-icon')" class="absolute right-3.5 top-3 text-gray-400 hover:text-indigo-500 focus:outline-none transition">
+              <svg id="reg-password-toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 mb-1.5">ACCOUNT ROLE</label>
+          <select id="reg-role" onchange="toggleStoreField(this.value)" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+            <option value="customer">Customer (Buy items)</option>
+            <option value="seller">Seller / Vendor (List & Sell items)</option>
+          </select>
+        </div>
+        <div id="store-field" class="hidden space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1.5">STORE/COMPANY NAME</label>
+            <input type="text" id="reg-store" placeholder="Apex Technology" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1.5">STORE LOGO</label>
+            <div class="flex items-center gap-3">
+              <input type="file" id="reg-logo-file" accept="image/*" class="hidden" onchange="previewRegLogo(this)">
+              <button type="button" onclick="document.getElementById('reg-logo-file').click()" class="px-4 py-2.5 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 text-xs font-bold hover:bg-gray-50 dark:hover:bg-slate-800 transition text-gray-600 dark:text-slate-300 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                Upload File
+              </button>
+              <div id="reg-logo-preview-container" class="hidden relative">
+                <img id="reg-logo-preview" class="w-10 h-10 object-cover rounded-xl border border-gray-200 dark:border-slate-800" alt="Logo preview">
+                <button type="button" onclick="removeRegLogo()" class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-rose-600 text-white rounded-full flex items-center justify-center text-[10px] hover:bg-rose-700 shadow">&times;</button>
+              </div>
+              <span class="text-xs text-gray-400">or URL</span>
+              <input type="text" id="reg-logo-url" placeholder="https://example.com/logo.png" class="flex-1 px-4 py-2.5 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-xs focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/20 transition">Create Account</button>
+      </form>
+
+      <!-- OTP Auth Form -->
+      <form id="otp-form" onsubmit="handleOtpSubmit(event)" class="space-y-4 relative z-10 hidden">
+        <div id="otp-email-step">
+          <label class="block text-xs font-bold text-gray-500 mb-1.5">EMAIL ADDRESS</label>
+          <div class="flex gap-2">
+            <input type="email" id="otp-email" placeholder="name@example.com" class="flex-1 px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+            <button type="button" onclick="sendOtpCode()" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition">Send OTP</button>
+          </div>
+        </div>
+        <div id="otp-code-step" class="hidden">
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="block text-xs font-bold text-gray-500">6-DIGIT CODE</label>
+            <span id="demo-otp-hint" class="text-[10px] text-amber-500 font-bold"></span>
+          </div>
+          <input type="text" id="otp-code" placeholder="000000" class="w-full px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-900/50 text-center tracking-widest text-lg font-bold focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 input-premium">
+          <button type="submit" class="w-full mt-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/20 transition">Verify & Sign In</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Main footer container -->
+  <footer id="main-footer" class="w-full bg-white dark:bg-slate-950 border-t border-gray-100 dark:border-slate-900"></footer>
+
+  <!-- Scripts -->
+  <script src="/js/supabase-client.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chat.js"></script>
+  
+  <script>
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (!input || !icon) return;
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = `
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"></path>
+        `;
+      } else {
+        input.type = 'password';
+        icon.innerHTML = `
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        `;
+      }
+    }
+
+    let activeAuthTab = 'login';
+    let generatedOtpCode = '';
+
+    function switchAuthTab(tab) {
+      activeAuthTab = tab;
+      
+      const tabLogin = document.getElementById('tab-login');
+      const tabRegister = document.getElementById('tab-register');
+      const tabOtp = document.getElementById('tab-otp');
+      const loginForm = document.getElementById('login-form');
+      const registerForm = document.getElementById('register-form');
+      const otpForm = document.getElementById('otp-form');
+
+      // Reset styles
+      [tabLogin, tabRegister, tabOtp].forEach(el => {
+        el.className = "flex-1 pb-3 text-sm font-semibold text-gray-400 hover:text-gray-600 dark:hover:text-slate-200";
+      });
+
+      // Hide forms
+      [loginForm, registerForm, otpForm].forEach(el => el.classList.add('hidden'));
+
+      if (tab === 'login') {
+        tabLogin.className = "flex-1 pb-3 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400";
+        loginForm.classList.remove('hidden');
+        document.getElementById('auth-title').innerText = 'Welcome Back';
+        document.getElementById('auth-subtitle').innerText = 'Sign in to manage your orders, wishlist, and profile.';
+      } else if (tab === 'register') {
+        tabRegister.className = "flex-1 pb-3 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400";
+        registerForm.classList.remove('hidden');
+        document.getElementById('auth-title').innerText = 'Create Account';
+        document.getElementById('auth-subtitle').innerText = 'Join our multi-vendor ecommerce ecosystem today.';
+      } else if (tab === 'otp') {
+        tabOtp.className = "flex-1 pb-3 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400";
+        otpForm.classList.remove('hidden');
+        document.getElementById('auth-title').innerText = 'OTP Verification';
+        document.getElementById('auth-subtitle').innerText = 'Log in instantly using a one-time verification code.';
+      }
+    }
+
+    function toggleStoreField(role) {
+      const field = document.getElementById('store-field');
+      if (role === 'seller') {
+        field.classList.remove('hidden');
+      } else {
+        field.classList.add('hidden');
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      try {
+        const res = await apiClient.auth.login(email, password);
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('user', JSON.stringify(res.user));
+        showToast('Login Successful!', 'success');
+
+        // Redirect based on role
+        setTimeout(() => {
+          if (res.user.role === 'seller') {
+            window.location.href = '/seller/index.html';
+          } else if (res.user.role === 'admin' || res.user.role === 'super_admin') {
+            window.location.href = 'http://localhost:5000/';
+          } else {
+            window.location.href = '/index.html';
+          }
+        }, 800);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    let selectedLogoFile = null;
+
+    function previewRegLogo(input) {
+      if (input.files && input.files[0]) {
+        selectedLogoFile = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('reg-logo-preview').src = e.target.result;
+          document.getElementById('reg-logo-preview-container').classList.remove('hidden');
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function removeRegLogo() {
+      selectedLogoFile = null;
+      document.getElementById('reg-logo-file').value = '';
+      document.getElementById('reg-logo-preview-container').classList.add('hidden');
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const full_name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const role = document.getElementById('reg-role').value;
+      const store_name = document.getElementById('reg-store').value.trim();
+      let logo_url = document.getElementById('reg-logo-url').value.trim();
+
+      if (password.length < 6) {
+        return showToast('Password must be at least 6 characters', 'error');
+      }
+
+      try {
+        if (role === 'seller' && selectedLogoFile) {
+          showToast('Uploading store logo...', 'info');
+          const formData = new FormData();
+          formData.append('file', selectedLogoFile);
+          
+          const uploadRes = await fetch('/api/upload-public', {
+            method: 'POST',
+            body: formData
+          });
+          
+          if (!uploadRes.ok) {
+            const errData = await uploadRes.json();
+            throw new Error(errData.error || 'Failed to upload logo image');
+          }
+          
+          const uploadData = await uploadRes.json();
+          logo_url = uploadData.file_url;
+        }
+
+        const res = await apiClient.auth.register({ full_name, email, password, role, store_name, logo_url });
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('user', JSON.stringify(res.user));
+        showToast('Account Created successfully!', 'success');
+
+        setTimeout(() => {
+          if (role === 'seller') {
+            window.location.href = '/seller/index.html';
+          } else {
+            window.location.href = '/index.html';
+          }
+        }, 1000);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function sendOtpCode() {
+      const email = document.getElementById('otp-email').value.trim();
+      if (!email) return showToast('Please enter your email', 'error');
+
+      try {
+        const res = await apiClient.auth.sendOtp(email);
+        generatedOtpCode = res.code;
+        showToast('OTP code generated!', 'success');
+        
+        document.getElementById('otp-email-step').classList.add('hidden');
+        const codeStep = document.getElementById('otp-code-step');
+        codeStep.classList.remove('hidden');
+        document.getElementById('demo-otp-hint').innerText = `Demo OTP is: ${res.code}`;
+      } catch (err) {
+        showToast('Failed to send OTP code', 'error');
+      }
+    }
+
+    async function handleOtpSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('otp-email').value.trim();
+      const code = document.getElementById('otp-code').value.trim();
+
+      if (code !== generatedOtpCode) {
+        return showToast('Incorrect verification code', 'error');
+      }
+
+      try {
+        const res = await apiClient.auth.verifyOtp(email, code);
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('user', JSON.stringify(res.user));
+        showToast('OTP Sign In Successful!', 'success');
+
+        setTimeout(() => {
+          window.location.href = '/index.html';
+        }, 800);
+      } catch (err) {
+        showToast('Sign in failed', 'error');
+      }
+    }
+
+    function handleForgotPassword() {
+      const email = document.getElementById('login-email').value.trim();
+      if (!email) return showToast('Please enter your email first to reset password', 'error');
+      
+      apiClient.auth.resetPassword(email).then(res => {
+        showToast(res.message, 'info');
+      });
+    }
+  </script>
+</body>
+</html>

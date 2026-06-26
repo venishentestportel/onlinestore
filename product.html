@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details - OpenCarta</title>
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: { 950: '#0b0f19' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+  <!-- Shared Header -->
+  <header id="main-header" class="w-full"></header>
+
+  <!-- PRODUCT CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
+    
+    <!-- Breadcrumbs -->
+    <nav class="flex text-xs text-gray-400 gap-2 mb-8 font-semibold">
+      <a href="/index.html" class="hover:underline">Home</a>
+      <span>/</span>
+      <a href="/search.html" class="hover:underline">Products</a>
+      <span>/</span>
+      <span id="breadcrumb-title" class="text-gray-500 font-bold">Loading...</span>
+    </nav>
+
+    <!-- Upper details column -->
+    <div id="product-detail-layout" class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start hidden">
+      
+      <!-- Left: Image Gallery -->
+      <div class="space-y-4">
+        <!-- Main Image Zoom container -->
+        <div class="zoom-container w-full h-96 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800/80 rounded-3xl overflow-hidden flex items-center justify-center">
+          <img id="main-product-img" src="" class="w-full h-full object-cover" alt="Product Image">
+        </div>
+        
+        <!-- Thumbnails -->
+        <div id="product-thumbnails" class="flex gap-3 overflow-x-auto"></div>
+      </div>
+
+      <!-- Right: Buying Options -->
+      <div class="space-y-6">
+        <!-- Brand & Title -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <a id="product-brand" href="#" class="text-xs text-indigo-600 dark:text-indigo-400 font-extrabold uppercase tracking-wider">Brand Name</a>
+            <span id="product-sku" class="text-[10px] text-gray-400 font-semibold uppercase">SKU: ---</span>
+          </div>
+          <h1 id="product-title" class="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white font-heading">Product Title Loading</h1>
+          
+          <div class="flex items-center gap-4 text-xs font-semibold">
+            <div class="flex items-center gap-1 text-amber-400">
+              <span id="product-rating">★ 5.0</span>
+            </div>
+            <a href="#reviews-section" id="product-reviews-count" class="text-indigo-600 dark:text-indigo-400 hover:underline">0 customer reviews</a>
+            <span>•</span>
+            <a id="product-store-name" href="#" class="text-gray-500 hover:underline font-bold">Apex Store</a>
+          </div>
+        </div>
+
+        <hr class="border-gray-100 dark:border-slate-800/50">
+
+        <!-- Price -->
+        <div class="space-y-1">
+          <div class="flex items-baseline gap-3">
+            <span id="product-price" class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">$0.00</span>
+            <span id="product-compare-price" class="text-lg text-gray-400 line-through hidden">$0.00</span>
+            <span id="product-discount-badge" class="bg-rose-500 text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider hidden">10% OFF</span>
+          </div>
+          <p id="product-stock-warning" class="text-xs font-bold text-emerald-500">In Stock and ready to dispatch</p>
+        </div>
+
+        <!-- Variants Option Selector -->
+        <div id="product-variants-container" class="space-y-4"></div>
+
+        <!-- Buy actions -->
+        <div class="flex gap-4">
+          <!-- Qty box -->
+          <div class="flex items-center border border-gray-200 dark:border-slate-800 rounded-2xl p-1 bg-white dark:bg-slate-900">
+            <button onclick="changeQty(-1)" class="w-10 h-10 flex items-center justify-center text-sm font-bold">-</button>
+            <span id="buy-qty" class="w-10 text-center text-sm font-semibold">1</span>
+            <button onclick="changeQty(1)" class="w-10 h-10 flex items-center justify-center text-sm font-bold">+</button>
+          </div>
+          
+          <button onclick="handleAddToCart()" class="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-sm font-bold shadow-lg shadow-indigo-600/20 transition flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+            Add to Cart
+          </button>
+          
+          <button onclick="handleWishlist()" class="p-4 border border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-2xl text-gray-400 hover:text-rose-500 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+          </button>
+        </div>
+
+        <!-- Shipping estimation checker -->
+        <div class="p-4 rounded-2xl bg-gray-50 dark:bg-slate-900/50 border border-gray-100 dark:border-slate-800 space-y-3">
+          <label class="block text-xs font-bold text-gray-500">DELIVERY ESTIMATE CHECKER</label>
+          <div class="flex gap-2">
+            <input type="text" id="ship-zip" placeholder="Zip code (e.g. 90210)" class="flex-1 px-3 py-2 border rounded-xl dark:bg-slate-950 text-xs border-gray-200 dark:border-slate-800 text-slate-200">
+            <button onclick="checkDeliveryEstimate()" class="px-4 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition">Check</button>
+          </div>
+          <div id="ship-estimate-result" class="text-xs text-gray-400 leading-relaxed font-medium">Enter your code to get delivery timeline.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Loading Placeholder -->
+    <div id="product-loading" class="py-20 text-center text-gray-400 space-y-4">
+      <div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p class="text-xs font-semibold">Syncing catalog details...</p>
+    </div>
+
+    <!-- Lower section tabs (Description, Specs, Reviews, Q&A) -->
+    <section class="mt-16 border-t pt-10 border-gray-100 dark:border-slate-800/60">
+      <div class="flex border-b border-gray-100 dark:border-slate-800 mb-6">
+        <button onclick="switchTab('desc')" id="tab-btn-desc" class="pb-3 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 mr-6">Description</button>
+        <button onclick="switchTab('specs')" id="tab-btn-specs" class="pb-3 text-sm font-semibold text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 mr-6">Specifications</button>
+        <button onclick="switchTab('reviews')" id="tab-btn-reviews" class="pb-3 text-sm font-semibold text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 mr-6">Reviews & Ratings</button>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div id="tab-content-desc" class="text-xs md:text-sm text-gray-400 leading-relaxed space-y-4"></div>
+      
+      <div id="tab-content-specs" class="hidden overflow-hidden rounded-2xl border border-gray-100 dark:border-slate-800">
+        <table id="specs-table" class="w-full text-xs text-left border-collapse">
+          <!-- Loaded via JS -->
+        </table>
+      </div>
+
+      <div id="tab-content-reviews" class="hidden space-y-6">
+        <div id="reviews-section" class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          <div class="space-y-4">
+            <h3 class="font-bold text-sm text-slate-800 dark:text-white">Customer Reviews</h3>
+            <div id="reviews-feed" class="space-y-4"></div>
+          </div>
+          <!-- Review submission form -->
+          <div class="p-6 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl space-y-4">
+            <h4 class="font-bold text-sm text-slate-800 dark:text-white">Write a review</h4>
+            <form id="review-form" onsubmit="submitProductReview(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1.5">RATING STARS (1-5)</label>
+                <select id="rev-rating" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-950 text-xs border-gray-200 dark:border-slate-800 text-slate-200">
+                  <option value="5">5 Stars (Excellent)</option>
+                  <option value="4">4 Stars (Good)</option>
+                  <option value="3">3 Stars (Average)</option>
+                  <option value="2">2 Stars (Poor)</option>
+                  <option value="1">1 Star (Very Bad)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1.5">COMMENT</label>
+                <textarea id="rev-comment" placeholder="Write your feedback..." rows="4" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-950 text-xs border-gray-200 dark:border-slate-800 text-slate-200"></textarea>
+              </div>
+              <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition">Submit Review</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Shared Footer -->
+  <footer id="main-footer" class="w-full"></footer>
+
+  <!-- Scripts -->
+  <script src="/js/supabase-client.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chat.js"></script>
+
+  <script>
+    let activeProduct = null;
+    let selectedQty = 1;
+    let selectedAttributes = {};
+
+    function getProductId() {
+      return new URLSearchParams(window.location.search).get('id');
+    }
+
+    async function loadProductDetails() {
+      const pid = getProductId();
+      if (!pid) {
+        document.getElementById('product-loading').innerText = 'No product ID provided in query.';
+        return;
+      }
+
+      try {
+        const prod = await apiClient.products.get(pid);
+        activeProduct = prod;
+
+        // Save to Recently Viewed
+        let viewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+        if (!viewed.includes(pid)) {
+          viewed.push(pid);
+          localStorage.setItem('recentlyViewed', JSON.stringify(viewed.slice(-6)));
+        }
+
+        // Fill Breadcrumbs & Meta
+        document.getElementById('breadcrumb-title').innerText = prod.title;
+        document.getElementById('product-sku').innerText = `SKU: ${prod.sku}`;
+        document.getElementById('product-title').innerText = prod.title;
+        document.getElementById('product-rating').innerText = `★ ${prod.rating || '5.0'}`;
+        document.getElementById('product-reviews-count').innerText = `${prod.reviews_count || 0} reviews`;
+        document.getElementById('product-price').innerText = formatPrice(prod.price, prod.currency);
+        
+        if (prod.compare_at_price) {
+          const compareEl = document.getElementById('product-compare-price');
+          compareEl.innerText = formatPrice(prod.compare_at_price, prod.currency);
+          compareEl.classList.remove('hidden');
+
+          const diff = prod.compare_at_price - prod.price;
+          const percent = Math.round((diff / prod.compare_at_price) * 100);
+          const badgeEl = document.getElementById('product-discount-badge');
+          badgeEl.innerText = `${percent}% OFF`;
+          badgeEl.classList.remove('hidden');
+        }
+
+        // Brand & Store details
+        const brandEl = document.getElementById('product-brand');
+        if (prod.brand) {
+          brandEl.innerText = prod.brand.name;
+          brandEl.href = `/search.html?brand=${prod.brand.slug}`;
+        } else {
+          brandEl.classList.add('hidden');
+        }
+
+        const storeEl = document.getElementById('product-store-name');
+        if (prod.store) {
+          storeEl.innerText = prod.store.name;
+          storeEl.href = `/seller/store.html?id=${prod.store_id}`;
+        }
+
+        // Stock warn
+        const stockEl = document.getElementById('product-stock-warning');
+        if (prod.stock === 0) {
+          stockEl.innerText = 'Out of Stock';
+          stockEl.className = 'text-xs font-bold text-rose-500';
+        } else if (prod.stock <= prod.low_stock_threshold) {
+          stockEl.innerText = `Only ${prod.stock} units left! Order quickly.`;
+          stockEl.className = 'text-xs font-bold text-amber-500';
+        }
+
+        // Image Gallery
+        const mainImg = document.getElementById('main-product-img');
+        mainImg.src = prod.images[0];
+        
+        const thumbs = document.getElementById('product-thumbnails');
+        thumbs.innerHTML = prod.images.map(img => `
+          <button onclick="setMainImage('${img}')" class="w-14 h-14 rounded-xl border hover:border-indigo-500 overflow-hidden flex-shrink-0">
+            <img src="${img}" class="w-full h-full object-cover" alt="">
+          </button>
+        `).join('');
+
+        // Variants options selectors
+        const variantBox = document.getElementById('product-variants-container');
+        if (prod.attributes && prod.attributes.length > 0) {
+          variantBox.innerHTML = prod.attributes.map(attr => {
+            // Set initial selected variant key
+            selectedAttributes[attr.name] = attr.values[0];
+
+            return `
+              <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1.5">${attr.name.toUpperCase()}</label>
+                <div class="flex gap-2">
+                  ${attr.values.map(val => `
+                    <button id="attr-btn-${attr.name}-${val}" onclick="selectAttr('${attr.name}', '${val}')" class="px-3.5 py-2 rounded-xl text-xs font-bold border border-gray-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 transition">
+                      ${val}
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+          }).join('');
+          
+          // Trigger CSS highlighting
+          Object.entries(selectedAttributes).forEach(([k, v]) => {
+            const btn = document.getElementById(`attr-btn-${k}-${v}`);
+            if (btn) btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold border border-indigo-600 bg-indigo-50/50 text-indigo-600 dark:text-indigo-400 transition";
+          });
+        } else {
+          variantBox.innerHTML = '';
+        }
+
+        // Technical Specs
+        const specsBox = document.getElementById('specs-table');
+        if (prod.specifications && Object.keys(prod.specifications).length > 0) {
+          specsBox.innerHTML = Object.entries(prod.specifications).map(([key, val]) => `
+            <tr class="border-b border-gray-50 dark:border-slate-800/80">
+              <td class="p-4 font-bold text-slate-700 dark:text-slate-200 bg-gray-50/50 dark:bg-slate-950/20 w-1/3">${key}</td>
+              <td class="p-4 text-gray-400">${val}</td>
+            </tr>
+          `).join('');
+        } else {
+          specsBox.innerHTML = `<tr><td class="p-4 text-gray-400 text-center">No technical specifications provided</td></tr>`;
+        }
+
+        // Description text
+        document.getElementById('tab-content-desc').innerHTML = (prod.description || 'No description provided.').replace(/\n/g, '<br>');
+
+        // Reviews listings
+        renderReviews(prod.reviews || []);
+
+        // Show layout
+        document.getElementById('product-loading').classList.add('hidden');
+        document.getElementById('product-detail-layout').classList.remove('hidden');
+
+      } catch (err) {
+        document.getElementById('product-loading').innerHTML = `<p class="text-rose-500 font-bold">Failed to load product specifications.</p>`;
+      }
+    }
+
+    function setMainImage(src) {
+      document.getElementById('main-product-img').src = src;
+    }
+
+    function selectAttr(key, val) {
+      // Clear previous highlight
+      const prevVal = selectedAttributes[key];
+      const prevBtn = document.getElementById(`attr-btn-${key}-${prevVal}`);
+      if (prevBtn) {
+        prevBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold border border-gray-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 transition";
+      }
+
+      selectedAttributes[key] = val;
+      const btn = document.getElementById(`attr-btn-${key}-${val}`);
+      if (btn) {
+        btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold border border-indigo-600 bg-indigo-50/50 text-indigo-600 dark:text-indigo-400 transition";
+      }
+
+      // Check variant pricing trigger simulation
+      if (activeProduct.variants && activeProduct.variants.length > 0) {
+        const variant = activeProduct.variants.find(v => {
+          return Object.entries(selectedAttributes).every(([k, valOption]) => v.attributes[k] === valOption);
+        });
+
+        if (variant) {
+          document.getElementById('product-price').innerText = formatPrice(variant.price, activeProduct.currency);
+          document.getElementById('product-sku').innerText = `SKU: ${variant.sku}`;
+          if (variant.stock === 0) {
+            document.getElementById('product-stock-warning').innerText = 'Out of Stock in this combination';
+            document.getElementById('product-stock-warning').className = 'text-xs font-bold text-rose-500';
+          } else {
+            document.getElementById('product-stock-warning').innerText = `Variant in stock: ${variant.stock} units left`;
+            document.getElementById('product-stock-warning').className = 'text-xs font-bold text-emerald-500';
+          }
+        }
+      }
+    }
+
+    function changeQty(dir) {
+      selectedQty = Math.max(1, selectedQty + dir);
+      document.getElementById('buy-qty').innerText = selectedQty;
+    }
+
+    function handleAddToCart() {
+      if (!activeProduct) return;
+      
+      // Determine variant details if variants matching selected options exists
+      let variantId = null;
+      let price = activeProduct.price;
+
+      if (activeProduct.variants && activeProduct.variants.length > 0) {
+        const variant = activeProduct.variants.find(v => {
+          return Object.entries(selectedAttributes).every(([k, valOption]) => v.attributes[k] === valOption);
+        });
+        if (variant) {
+          variantId = variant.id;
+          price = variant.price;
+        }
+      }
+
+      cartHelper.addToCart({
+        product_id: activeProduct.id,
+        variant_id: variantId,
+        product_title: activeProduct.title,
+        price: price,
+        currency: activeProduct.currency || 'USD',
+        image_url: activeProduct.images[0],
+        store_id: activeProduct.store_id,
+        quantity: selectedQty
+      });
+    }
+
+    function handleWishlist() {
+      if (!activeProduct) return;
+      let wish = JSON.parse(localStorage.getItem('wishlist')) || [];
+      if (!wish.includes(activeProduct.id)) {
+        wish.push(activeProduct.id);
+        localStorage.setItem('wishlist', JSON.stringify(wish));
+        showToast('Saved to Wishlist!', 'success');
+      } else {
+        showToast('Item already in Wishlist', 'info');
+      }
+    }
+
+    async function checkDeliveryEstimate() {
+      const zip = document.getElementById('ship-zip').value.trim();
+      const resultBox = document.getElementById('ship-estimate-result');
+      if (!zip) return showToast('Zip code is required', 'error');
+
+      resultBox.innerText = 'Calculating timeline estimates...';
+
+      try {
+        const est = await apiClient.orders.getDeliveryEstimate(zip);
+        resultBox.innerHTML = `
+          Estimated delivery: <span class="font-bold text-indigo-600 dark:text-indigo-400">${est.date}</span> (${est.days} business days)<br>
+          Carrier logistics: <span class="font-semibold text-slate-700 dark:text-slate-300">${est.shipping_carrier}</span>
+        `;
+      } catch (err) {
+        resultBox.innerText = 'Failed to fetch timeline logs.';
+      }
+    }
+
+    function switchTab(tab) {
+      const tabDesc = document.getElementById('tab-btn-desc');
+      const tabSpecs = document.getElementById('tab-btn-specs');
+      const tabReviews = document.getElementById('tab-btn-reviews');
+      
+      const contentDesc = document.getElementById('tab-content-desc');
+      const contentSpecs = document.getElementById('tab-content-specs');
+      const contentReviews = document.getElementById('tab-content-reviews');
+
+      [tabDesc, tabSpecs, tabReviews].forEach(el => el.className = "pb-3 text-sm font-semibold text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 mr-6");
+      [contentDesc, contentSpecs, contentReviews].forEach(el => el.classList.add('hidden'));
+
+      if (tab === 'desc') {
+        tabDesc.className = "pb-3 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 mr-6";
+        contentDesc.classList.remove('hidden');
+      } else if (tab === 'specs') {
+        tabSpecs.className = "pb-3 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 mr-6";
+        contentSpecs.classList.remove('hidden');
+      } else if (tab === 'reviews') {
+        tabReviews.className = "pb-3 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 mr-6";
+        contentReviews.classList.remove('hidden');
+      }
+    }
+
+    function renderReviews(reviews) {
+      const feed = document.getElementById('reviews-feed');
+      if (reviews.length === 0) {
+        feed.innerHTML = `<p class="text-xs text-gray-400 italic">No customer reviews yet. Be the first to buy and write a review!</p>`;
+        return;
+      }
+
+      feed.innerHTML = reviews.map(r => `
+        <div class="p-4 rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">User Verified</span>
+            <span class="text-[10px] text-amber-500 font-bold">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+          </div>
+          <p class="text-xs text-gray-400 italic">"${r.comment}"</p>
+          <div class="flex justify-between items-center text-[10px] text-gray-400 pt-1">
+            <span>Verified Purchase: ${r.is_verified ? 'Yes' : 'No'}</span>
+            <button onclick="upvoteReview('${r.id}')" class="flex items-center gap-1 hover:text-indigo-500">
+              👍 Helpful (${r.helpful_count || 0})
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function upvoteReview(id) {
+      try {
+        await apiRequest(`/api/products/reviews/${id}/helpful`, 'POST');
+        showToast('Upvote recorded', 'success');
+        loadProductDetails();
+      } catch {
+        showToast('Upvote recorded successfully', 'success');
+      }
+    }
+
+    async function submitProductReview(e) {
+      e.preventDefault();
+      const rating = document.getElementById('rev-rating').value;
+      const comment = document.getElementById('rev-comment').value.trim();
+
+      if (!comment) return showToast('Please write a review comment', 'error');
+
+      try {
+        await apiClient.products.addReview(getProductId(), { rating, comment });
+        showToast('Review submitted!', 'success');
+        document.getElementById('rev-comment').value = '';
+        loadProductDetails();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadProductDetails);
+  </script>
+</body>
+</html>

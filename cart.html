@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart - OpenCarta</title>
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: { 950: '#0b0f19' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+  <!-- Shared Header -->
+  <header id="main-header" class="w-full"></header>
+
+  <!-- CART CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
+    
+    <div class="mb-8">
+      <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white font-heading">Shopping Cart</h1>
+      <p class="text-xs text-gray-400">Review your chosen items and apply available coupon discounts.</p>
+    </div>
+
+    <!-- Main Grid -->
+    <div id="cart-main-layout" class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start hidden">
+      
+      <!-- Items table -->
+      <div class="lg:col-span-2 space-y-4">
+        <div id="cart-items-feed" class="space-y-4"></div>
+      </div>
+
+      <!-- Order Summary Card -->
+      <div class="space-y-6">
+        <div class="glass-panel p-6 rounded-3xl border border-gray-100 dark:border-slate-800 space-y-4">
+          <h3 class="font-bold text-sm text-slate-800 dark:text-white border-b pb-3 border-gray-50 dark:border-slate-800">Order Summary</h3>
+          
+          <!-- Calculations -->
+          <div class="space-y-2.5 text-xs">
+            <div class="flex justify-between text-gray-400 font-medium">
+              <span>Subtotal</span>
+              <span id="summary-subtotal" class="font-bold text-slate-800 dark:text-slate-200">$0.00</span>
+            </div>
+            <div class="flex justify-between text-gray-400 font-medium">
+              <span>Shipping Estimate</span>
+              <span id="summary-shipping" class="font-bold text-slate-800 dark:text-slate-200">$0.00</span>
+            </div>
+            <div class="flex justify-between text-gray-400 font-medium">
+              <span>Sales Tax (8%)</span>
+              <span id="summary-tax" class="font-bold text-slate-800 dark:text-slate-200">$0.00</span>
+            </div>
+            <div id="discount-row" class="flex justify-between text-rose-500 font-semibold hidden">
+              <span>Coupon Discount</span>
+              <span id="summary-discount">-$0.00</span>
+            </div>
+            <hr class="border-gray-50 dark:border-slate-800">
+            <div class="flex justify-between text-sm font-bold text-slate-800 dark:text-white pt-1">
+              <span>Estimated Total</span>
+              <span id="summary-total">$0.00</span>
+            </div>
+          </div>
+
+          <!-- Coupon application form -->
+          <div class="space-y-2.5 pt-2">
+            <label class="block text-[10px] font-bold text-gray-400 uppercase">Apply Promo Coupon</label>
+            <div class="flex gap-2">
+              <input type="text" id="coupon-code-input" placeholder="e.g. WELCOME10" class="flex-1 px-3 py-2 border rounded-xl dark:bg-slate-950 text-xs border-gray-200 dark:border-slate-800 text-slate-200 uppercase">
+              <button onclick="applyPromoCoupon()" class="px-4 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition">Apply</button>
+            </div>
+            <div id="coupon-status-msg" class="text-[10px] text-gray-400">WELCOME10 grants 10% discount on order.</div>
+          </div>
+
+          <!-- Checkout Button -->
+          <button onclick="proceedToCheckout()" class="w-full mt-4 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/20 transition flex items-center justify-center gap-2">
+            Proceed to Checkout &rarr;
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Empty cart state -->
+    <div id="cart-empty-state" class="py-20 text-center text-gray-400 space-y-4">
+      <svg class="w-16 h-16 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+      <h3 class="font-bold text-sm text-slate-700 dark:text-slate-300">Your cart is currently empty</h3>
+      <p class="text-xs">Browse the catalog to add items here.</p>
+      <a href="/search.html" class="inline-block px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-lg transition">Explore Products</a>
+    </div>
+
+  </main>
+
+  <!-- Shared Footer -->
+  <footer id="main-footer" class="w-full"></footer>
+
+  <!-- Scripts -->
+  <script src="/js/supabase-client.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chat.js"></script>
+
+  <script>
+    let appliedCoupon = null;
+
+    function renderCartPage() {
+      const cart = cartHelper.getCart();
+      const layout = document.getElementById('cart-main-layout');
+      const emptyState = document.getElementById('cart-empty-state');
+      const feed = document.getElementById('cart-items-feed');
+
+      if (cart.length === 0) {
+        layout.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      layout.classList.remove('hidden');
+
+      feed.innerHTML = cart.map(item => `
+        <div class="flex gap-4 p-4 rounded-3xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+          <img src="${item.image_url}" class="w-20 h-20 object-cover rounded-2xl border">
+          <div class="flex-1 min-w-0">
+            <h4 class="text-sm font-bold text-gray-800 dark:text-slate-200 truncate">${item.product_title}</h4>
+            ${item.variant_id ? `<p class="text-[10px] text-gray-400 mt-0.5">Variant Code: ${item.variant_id.substring(0, 8)}</p>` : ''}
+            <p class="text-xs text-indigo-500 font-bold mt-1">${formatPrice(item.price, item.currency)}</p>
+            
+            <!-- Adjuster -->
+            <div class="flex items-center gap-2 mt-3">
+              <button onclick="adjustPageQty('${item.product_id}', '${item.variant_id}', -1)" class="w-7 h-7 border border-gray-200 dark:border-slate-800 rounded-lg flex items-center justify-center text-xs dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition">-</button>
+              <span class="text-xs font-semibold dark:text-slate-200 px-1">${item.quantity}</span>
+              <button onclick="adjustPageQty('${item.product_id}', '${item.variant_id}', 1)" class="w-7 h-7 border border-gray-200 dark:border-slate-800 rounded-lg flex items-center justify-center text-xs dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition">+</button>
+            </div>
+          </div>
+          <button onclick="removePageItem('${item.product_id}', '${item.variant_id}')" class="p-2 text-gray-400 hover:text-rose-500 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 self-start transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+          </button>
+        </div>
+      `).join('');
+
+      calculateSummary();
+    }
+
+    function calculateSummary() {
+      const subtotal = cartHelper.getSubtotal();
+      const shipping = subtotal > 150 ? 0 : 15;
+      const tax = subtotal * 0.08;
+      
+      let discount = 0;
+      if (appliedCoupon) {
+        if (appliedCoupon.type === 'percentage') {
+          discount = subtotal * (appliedCoupon.value / 100);
+        } else if (appliedCoupon.type === 'fixed_amount') {
+          discount = appliedCoupon.value;
+        }
+      }
+
+      const total = Math.max(0, subtotal + tax + shipping - discount);
+
+      const cart = cartHelper.getCart();
+      const cartCurrency = cart.length > 0 ? (cart[0].currency || 'USD') : 'USD';
+
+      document.getElementById('summary-subtotal').innerText = formatPrice(subtotal, cartCurrency);
+      document.getElementById('summary-shipping').innerText = shipping === 0 ? 'FREE' : formatPrice(shipping, cartCurrency);
+      document.getElementById('summary-tax').innerText = formatPrice(tax, cartCurrency);
+      
+      const discountRow = document.getElementById('discount-row');
+      if (discount > 0) {
+        document.getElementById('summary-discount').innerText = '-' + formatPrice(discount, cartCurrency);
+        discountRow.classList.remove('hidden');
+      } else {
+        discountRow.classList.add('hidden');
+      }
+
+      document.getElementById('summary-total').innerText = formatPrice(total, cartCurrency);
+      
+      // Save coupon state locally for checkout
+      if (appliedCoupon) {
+        localStorage.setItem('checkout_coupon', JSON.stringify(appliedCoupon));
+      } else {
+        localStorage.removeItem('checkout_coupon');
+      }
+    }
+
+    function adjustPageQty(prodId, varId, dir) {
+      const cart = cartHelper.getCart();
+      const item = cart.find(i => i.product_id === prodId && i.variant_id === (varId === 'null' ? null : varId));
+      if (item) {
+        cartHelper.updateQty(prodId, item.variant_id, item.quantity + dir);
+        renderCartPage();
+      }
+    }
+
+    function removePageItem(prodId, varId) {
+      cartHelper.removeFromCart(prodId, varId === 'null' ? null : varId);
+      renderCartPage();
+    }
+
+    function applyPromoCoupon() {
+      const code = document.getElementById('coupon-code-input').value.trim().toUpperCase();
+      const msg = document.getElementById('coupon-status-msg');
+      
+      if (!code) return showToast('Please enter a coupon code', 'error');
+
+      if (code === 'WELCOME10') {
+        appliedCoupon = { code: 'WELCOME10', type: 'percentage', value: 10 };
+        msg.className = "text-[10px] text-emerald-500 font-bold";
+        msg.innerText = "Coupon WELCOME10 applied: 10% discount granted!";
+        showToast('WELCOME10 coupon claimed!', 'success');
+        calculateSummary();
+      } else {
+        msg.className = "text-[10px] text-rose-500 font-bold";
+        msg.innerText = "Invalid or expired promo code.";
+        showToast('Invalid coupon', 'error');
+        appliedCoupon = null;
+        calculateSummary();
+      }
+    }
+
+    function proceedToCheckout() {
+      const user = localStorage.getItem('user');
+      if (!user) {
+        showToast('Please sign in to complete checkout', 'info');
+        setTimeout(() => window.location.href = '/login.html', 1000);
+      } else {
+        window.location.href = '/checkout.html';
+      }
+    }
+
+    // Sync drawer update notifications
+    window.addEventListener('cart-updated', renderCartPage);
+
+    document.addEventListener('DOMContentLoaded', renderCartPage);
+  </script>
+</body>
+</html>

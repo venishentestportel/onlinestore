@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Products - OpenCarta</title>
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: { 950: '#0b0f19' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+  <!-- Shared Header -->
+  <header id="main-header" class="w-full"></header>
+
+  <!-- SEARCH MAIN LAYOUT -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
+    
+    <!-- Title & Voice search -->
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white font-heading">Search Catalog</h1>
+        <p class="text-xs text-gray-400">Apply filters to find specific items.</p>
+      </div>
+
+      <!-- Voice search trigger -->
+      <button onclick="triggerVoiceSearch()" class="flex items-center gap-2 px-4 py-2 border border-indigo-500/30 dark:border-indigo-400/20 bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 rounded-xl text-xs font-bold transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+        Voice Search
+      </button>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8 items-start">
+      
+      <!-- Filters Sidebar (Desktop) -->
+      <aside class="w-full lg:w-64 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-6 rounded-3xl border border-gray-100 dark:border-slate-800 space-y-6">
+        <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 border-b pb-3 border-gray-50 dark:border-slate-800">Filters</h3>
+        
+        <!-- Category Filter -->
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-gray-400 uppercase">Category</label>
+          <select id="filter-category" onchange="runSearch()" class="w-full px-3 py-2 border rounded-lg dark:bg-slate-950 text-xs border-gray-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+            <option value="">All Categories</option>
+            <option value="electronics">Electronics</option>
+            <option value="laptops">Computing</option>
+            <option value="fashion">Fashion</option>
+            <option value="home-living">Home Living</option>
+          </select>
+        </div>
+
+        <!-- Price Range -->
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-gray-400 uppercase">Price Range</label>
+          <div class="flex gap-2 items-center">
+            <input type="number" id="filter-min-price" placeholder="Min" class="w-full px-2.5 py-1.5 border rounded-lg text-xs dark:bg-slate-950 border-gray-200 dark:border-slate-800 text-slate-200" onchange="runSearch()">
+            <span class="text-gray-400 text-xs">-</span>
+            <input type="number" id="filter-max-price" placeholder="Max" class="w-full px-2.5 py-1.5 border rounded-lg text-xs dark:bg-slate-950 border-gray-200 dark:border-slate-800 text-slate-200" onchange="runSearch()">
+          </div>
+        </div>
+
+        <!-- Minimum Rating -->
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-gray-400 uppercase">Customer Rating</label>
+          <div class="space-y-1">
+            <label class="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+              <input type="radio" name="filter-rating" value="" checked onchange="runSearch()"> All Ratings
+            </label>
+            <label class="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+              <input type="radio" name="filter-rating" value="4" onchange="runSearch()"> 4★ & above
+            </label>
+            <label class="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+              <input type="radio" name="filter-rating" value="4.5" onchange="runSearch()"> 4.5★ & above
+            </label>
+          </div>
+        </div>
+
+        <!-- Stock Status -->
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-gray-400 uppercase">Availability</label>
+          <div class="space-y-1">
+            <label class="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+              <input type="radio" name="filter-stock" value="" checked onchange="runSearch()"> All Items
+            </label>
+            <label class="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+              <input type="radio" name="filter-stock" value="in_stock" onchange="runSearch()"> In Stock Only
+            </label>
+          </div>
+        </div>
+
+        <!-- Discount Checkbox -->
+        <label class="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+          <input type="checkbox" id="filter-discount" onchange="runSearch()"> Discounted Items
+        </label>
+      </aside>
+
+      <!-- Products Grid & Sort Options -->
+      <div class="flex-grow w-full space-y-6">
+        <div class="flex items-center justify-between">
+          <p id="search-results-count" class="text-xs text-gray-400">Loading catalog items...</p>
+          
+          <select id="sort-by" onchange="runSearch()" class="px-3 py-2 border rounded-lg dark:bg-slate-950 text-xs border-gray-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+            <option value="newest">Newest Arrivals</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="rating">Top Rated</option>
+          </select>
+        </div>
+
+        <!-- Main Products Container -->
+        <div id="search-products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Shared Footer -->
+  <footer id="main-footer" class="w-full"></footer>
+
+  <!-- Scripts -->
+  <script src="/js/supabase-client.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chat.js"></script>
+
+  <script>
+    // Handle query params on boot
+    function getQueryFilters() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        search: params.get('search') || '',
+        category: params.get('category') || '',
+        brand: params.get('brand') || '',
+        discount: params.get('discount') || '',
+      };
+    }
+
+    // Set filter UI inputs from query
+    function applyQueryToUi() {
+      const q = getQueryFilters();
+      if (q.category) document.getElementById('filter-category').value = q.category;
+      if (q.discount === 'true') document.getElementById('filter-discount').checked = true;
+    }
+
+    async function runSearch() {
+      const grid = document.getElementById('search-products-grid');
+      const countText = document.getElementById('search-results-count');
+      
+      const q = getQueryFilters();
+      const category = document.getElementById('filter-category').value;
+      const min_price = document.getElementById('filter-min-price').value;
+      const max_price = document.getElementById('filter-max-price').value;
+      const rating = document.querySelector('input[name="filter-rating"]:checked').value;
+      const availability = document.querySelector('input[name="filter-stock"]:checked').value;
+      const discount = document.getElementById('filter-discount').checked ? 'true' : '';
+      const sort = document.getElementById('sort-by').value;
+
+      try {
+        const products = await apiClient.products.list({
+          search: q.search,
+          category,
+          min_price,
+          max_price,
+          rating,
+          availability,
+          discount,
+          sort
+        });
+
+        countText.innerText = `Found ${products.length} products`;
+
+        if (products.length === 0) {
+          grid.innerHTML = `
+            <div class="col-span-full py-16 text-center text-gray-400">
+              <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <h4 class="font-bold text-sm">No items found matching criteria</h4>
+              <p class="text-xs">Try clearing some filters or searching for another query.</p>
+            </div>
+          `;
+          return;
+        }
+
+
+        grid.innerHTML = products.map(p => `
+          <div class="glass-card bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl p-4 flex flex-col justify-between">
+            <div class="relative overflow-hidden rounded-2xl group">
+              <a href="/product.html?id=${p.id}" class="block">
+                <img src="${p.images[0]}" class="w-full h-44 object-cover rounded-2xl group-hover:scale-105 transition duration-500" alt="">
+              </a>
+              ${p.compare_at_price ? `<span class="absolute top-3 left-3 bg-rose-500 text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full">SALE</span>` : ''}
+              <button onclick="saveWishlist('${p.id}')" class="absolute top-3 right-3 p-2 rounded-xl bg-white/80 dark:bg-slate-900/80 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-gray-400 hover:text-rose-500 transition">
+                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+              </button>
+            </div>
+            <div class="pt-4 space-y-1">
+              <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">SKU: ${p.sku}</p>
+              <a href="/product.html?id=${p.id}" class="block text-sm font-bold text-slate-800 dark:text-white hover:text-indigo-600 truncate">${p.title}</a>
+              <div class="flex items-center gap-1.5 text-xs text-amber-400 font-bold">
+                <span>★</span> <span>${p.rating || '5.0'}</span> <span class="text-gray-400 font-normal">(${p.reviews_count || '0'})</span>
+              </div>
+              <div class="flex items-center justify-between pt-2">
+                <div class="flex items-baseline gap-1.5">
+                  <span class="text-base font-extrabold text-indigo-600 dark:text-indigo-400">${formatPrice(p.price, p.currency)}</span>
+                  ${p.compare_at_price ? `<span class="text-xs text-gray-400 line-through">${formatPrice(p.compare_at_price, p.currency)}</span>` : ''}
+                </div>
+                <button onclick="addProductToCart('${p.id}', '${p.title}', ${p.price}, '${p.images[0]}', '${p.store_id}', '${p.currency || 'USD'}')" class="p-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow shadow-indigo-600/20 transition">
+                  <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        grid.innerHTML = `<p class="text-xs text-rose-500 text-center col-span-full">Error loading items</p>`;
+      }
+    }
+
+    function addProductToCart(id, title, price, image, storeId, currency) {
+      cartHelper.addToCart({ product_id: id, product_title: title, price, image_url: image, store_id: storeId, quantity: 1, currency: currency || 'USD' });
+    }
+
+    function saveWishlist(id) {
+      let wish = JSON.parse(localStorage.getItem('wishlist')) || [];
+      if (!wish.includes(id)) {
+        wish.push(id);
+        localStorage.setItem('wishlist', JSON.stringify(wish));
+        showToast('Saved to Wishlist!', 'success');
+      } else {
+        showToast('Item already in Wishlist', 'info');
+      }
+    }
+
+    // Voice search simulation
+    function triggerVoiceSearch() {
+      showToast('Listening for search query...', 'info');
+      setTimeout(() => {
+        const queries = ['MacBook Pro', 'Galaxy Phone', 'Nike Sneaker'];
+        const mockVoiceText = queries[Math.floor(Math.random() * queries.length)];
+        showToast(`Heard: "${mockVoiceText}"`, 'success');
+        
+        // Update URL and reload search
+        const url = new URL(window.location);
+        url.searchParams.set('search', mockVoiceText);
+        window.history.pushState({}, '', url);
+        runSearch();
+      }, 2000);
+    }
+
+    async function loadFilterCategories() {
+      const select = document.getElementById('filter-category');
+      if (!select) return;
+      try {
+        const categories = await apiClient.categories.list();
+        select.innerHTML = '<option value="">All Categories</option>' + categories.map(c => `
+          <option value="${c.slug}">${c.name}</option>
+        `).join('');
+        // Apply query values after categories are loaded
+        const q = getQueryFilters();
+        if (q.category) select.value = q.category;
+      } catch (err) {
+        console.error('Error loading filter categories:', err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      applyQueryToUi();
+      await loadFilterCategories();
+      runSearch();
+    });
+  </script>
+</body>
+</html>

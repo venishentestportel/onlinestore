@@ -1,0 +1,22 @@
+{
+  "name": "multi-vendor-marketplace",
+  "version": "1.0.0",
+  "description": "A complete production-ready multi-vendor eCommerce web application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.8",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "pdfkit": "^0.15.0",
+    "qrcode": "^1.5.3",
+    "serverless-http": "^4.0.0",
+    "uuid": "^9.0.1"
+  }
+}

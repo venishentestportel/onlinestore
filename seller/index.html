@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Control Dashboard - OpenCarta</title>
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: { 950: '#0b0f19' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+  <!-- Shared Header -->
+  <header id="main-header" class="w-full"></header>
+
+  <!-- SELLER DASHBOARD MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
+    
+    <div class="flex flex-col md:flex-row gap-8 items-start">
+      
+      <!-- Left sidebar navigation -->
+      <aside class="w-full md:w-64 bg-white/80 dark:bg-slate-900/80 border border-gray-100 dark:border-slate-800 p-6 rounded-3xl space-y-2 flex-shrink-0">
+        <div class="flex items-center gap-3 pb-6 border-b border-gray-50 dark:border-slate-800/60 mb-4">
+          <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-extrabold text-lg">S</div>
+          <div>
+            <h4 id="seller-store-name" class="font-bold text-sm text-slate-800 dark:text-white truncate"> Apex Electronics </h4>
+            <span class="text-[10px] text-gray-400 font-semibold uppercase">Seller Account</span>
+          </div>
+        </div>
+        <button onclick="switchTab('analytics')" id="menu-btn-analytics" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold bg-indigo-50/50 text-indigo-600 dark:bg-indigo-950/20 dark:text-indigo-400 flex items-center gap-2">
+          📊 Sales Analytics
+        </button>
+        <button onclick="switchTab('catalog')" id="menu-btn-catalog" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2">
+          🛍️ Catalog Inventory
+        </button>
+        <button onclick="switchTab('orders')" id="menu-btn-orders" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2">
+          📦 Incoming Orders
+        </button>
+        <button onclick="switchTab('csv')" id="menu-btn-csv" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2">
+          📁 Bulk CSV Upload
+        </button>
+      </aside>
+
+      <!-- View Section panels -->
+      <section class="flex-grow w-full space-y-6">
+        
+        <!-- Tab 1: Analytics -->
+        <div id="panel-analytics" class="space-y-6">
+          <!-- Summary statistics cards -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="glass-panel p-5 rounded-3xl border border-gray-100 dark:border-slate-800/80">
+              <p class="text-[10px] font-bold text-gray-400 uppercase">Gross Revenue</p>
+              <h4 id="stat-revenue" class="text-xl md:text-2xl font-extrabold text-slate-800 dark:text-white font-heading mt-1">$0.00</h4>
+            </div>
+            <div class="glass-panel p-5 rounded-3xl border border-gray-100 dark:border-slate-800/80">
+              <p class="text-[10px] font-bold text-gray-400 uppercase">Total Orders</p>
+              <h4 id="stat-orders" class="text-xl md:text-2xl font-extrabold text-slate-800 dark:text-white font-heading mt-1">0</h4>
+            </div>
+            <div class="glass-panel p-5 rounded-3xl border border-gray-100 dark:border-slate-800/80">
+              <p class="text-[10px] font-bold text-gray-400 uppercase">Conversion Rate</p>
+              <h4 id="stat-conv" class="text-xl md:text-2xl font-extrabold text-slate-800 dark:text-white font-heading mt-1">0.00%</h4>
+            </div>
+            <div class="glass-panel p-5 rounded-3xl border border-gray-100 dark:border-slate-800/80">
+              <p class="text-[10px] font-bold text-gray-400 uppercase">Store Visitors</p>
+              <h4 id="stat-visitors" class="text-xl md:text-2xl font-extrabold text-slate-800 dark:text-white font-heading mt-1">0</h4>
+            </div>
+          </div>
+
+          <!-- Sales graph simulation -->
+          <div class="glass-panel p-6 rounded-3xl border border-gray-100 dark:border-slate-800">
+            <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-4">7-Day Sales Trend</h4>
+            <div class="h-48 flex items-end justify-between pt-6 border-b border-gray-100 dark:border-slate-800 px-4">
+              <div class="w-10 bg-indigo-500/80 rounded-t-lg h-[20%] text-center text-[10px] font-bold text-white pt-1">Mon</div>
+              <div class="w-10 bg-indigo-500/80 rounded-t-lg h-[45%] text-center text-[10px] font-bold text-white pt-1">Tue</div>
+              <div class="w-10 bg-indigo-500/80 rounded-t-lg h-[30%] text-center text-[10px] font-bold text-white pt-1">Wed</div>
+              <div class="w-10 bg-indigo-500/80 rounded-t-lg h-[65%] text-center text-[10px] font-bold text-white pt-1">Thu</div>
+              <div class="w-10 bg-indigo-500/80 rounded-t-lg h-[50%] text-center text-[10px] font-bold text-white pt-1">Fri</div>
+              <div class="w-10 bg-indigo-500/80 rounded-t-lg h-[85%] text-center text-[10px] font-bold text-white pt-1">Sat</div>
+              <div class="w-10 bg-indigo-600 rounded-t-lg h-[95%] text-center text-[10px] font-bold text-white pt-1">Sun</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Catalog Inventory -->
+        <div id="panel-catalog" class="space-y-4 hidden">
+          <div class="flex justify-between items-center mb-2">
+            <h3 class="font-bold text-base text-slate-800 dark:text-white font-heading">Product Catalog</h3>
+            <div class="flex gap-2">
+              <a id="btn-export-products" href="#" class="px-4 py-2 border border-gray-200 dark:border-slate-800 rounded-xl text-xs font-bold hover:bg-gray-50 dark:hover:bg-slate-800 dark:text-slate-300">Export CSV</a>
+              <button onclick="toggleProductModal(true)" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">Add Product</button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto border border-gray-100 dark:border-slate-800 rounded-3xl bg-white dark:bg-slate-900/60">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-gray-50 dark:bg-slate-950/40 text-slate-500 font-bold border-b border-gray-100 dark:border-slate-800">
+                <tr>
+                  <th class="p-4">SKU</th>
+                  <th class="p-4">Title</th>
+                  <th class="p-4">Price</th>
+                  <th class="p-4">Stock</th>
+                  <th class="p-4">Status</th>
+                  <th class="p-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="catalog-table-body" class="divide-y divide-gray-50 dark:divide-slate-800/40 text-gray-400">
+                <!-- Loaded via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 3: Incoming Orders -->
+        <div id="panel-orders" class="space-y-4 hidden">
+          <h3 class="font-bold text-base text-slate-800 dark:text-white font-heading">Incoming Order Tracking</h3>
+          <div id="seller-orders-feed" class="space-y-4"></div>
+        </div>
+
+        <!-- Tab 4: CSV upload -->
+        <div id="panel-csv" class="glass-panel p-8 rounded-3xl border border-gray-100 dark:border-slate-800 space-y-4 hidden">
+          <h3 class="font-bold text-base text-slate-800 dark:text-white font-heading">Bulk Upload Products</h3>
+          <p class="text-xs text-gray-400 leading-relaxed">Select a CSV template file containing headers: <span class="font-bold">SKU, Title, Price, Stock, Description, Status</span>. Shipped items are imported automatically.</p>
+          
+          <form id="csv-upload-form" onsubmit="submitBulkCsv(event)" class="space-y-4 pt-2">
+            <input type="file" id="csv-file-input" accept=".csv" required class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 dark:file:bg-indigo-950/30 file:text-indigo-600 dark:file:text-indigo-400 hover:file:bg-indigo-100 transition">
+            <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow transition">Start Bulk Import</button>
+          </form>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- PRODUCT EDIT MODAL -->
+  <div id="product-modal-overlay" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-lg bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-8 rounded-3xl shadow-2xl space-y-4 overflow-y-auto max-h-[90vh]">
+      <div class="flex justify-between items-center border-b pb-3 border-gray-50 dark:border-slate-800">
+        <h4 id="modal-title" class="font-bold text-sm text-slate-800 dark:text-white">Add Product Detail</h4>
+        <button onclick="toggleProductModal(false)" class="text-gray-400 hover:text-slate-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <form id="product-form" onsubmit="saveProduct(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="edit-prod-id">
+        
+        
+        <div>
+          <label class="block text-[10px] font-bold text-gray-500 mb-1">TITLE</label>
+          <input type="text" id="edit-title" required placeholder="Product Display Name" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-950 border-gray-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 bg-gray-50/30 dark:bg-slate-900/30">
+        </div>
+        
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-[10px] font-bold text-gray-500 mb-1">PRICE</label>
+            <input type="number" step="0.01" id="edit-price" required placeholder="0.00" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-950 border-gray-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 bg-gray-50/30 dark:bg-slate-900/30">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-gray-500 mb-1">CURRENCY</label>
+            <select id="edit-currency" required class="w-full px-3 py-2 border rounded-xl dark:bg-slate-950 border-gray-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 bg-gray-50/30 dark:bg-slate-900/30">
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="INR">INR (₹)</option>
+              <option value="CAD">CAD (CA$)</option>
+              <option value="AUD">AUD (A$)</option>
+              <option value="JPY">JPY (¥)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-gray-500 mb-1">CATALOG STOCK</label>
+            <input type="number" id="edit-stock" required placeholder="10" class="w-full px-3 py-2 border rounded-xl dark:bg-slate-950 border-gray-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 bg-gray-50/30 dark:bg-slate-900/30">
+          </div>
+        </div>
+
+        <div class="border-t pt-3 border-gray-50 dark:border-slate-800 space-y-2">
+          <label class="block text-[10px] font-bold text-gray-500">PRODUCT IMAGES</label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input type="file" id="edit-image" accept="image/*" multiple class="flex-1 px-3 py-2 border rounded-xl dark:bg-slate-950 border-gray-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 bg-gray-50/30 dark:bg-slate-900/30">
+            <input type="text" id="edit-image-url" placeholder="Or enter image URLs (comma-separated)..." class="flex-1 px-3 py-2 border rounded-xl dark:bg-slate-950 border-gray-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 bg-gray-50/30 dark:bg-slate-900/30">
+          </div>
+        </div>
+
+        <div class="border-t pt-3 border-gray-50 dark:border-slate-800 space-y-2">
+          <div class="flex justify-between items-center">
+            <label class="block text-[10px] font-bold text-gray-500">DESCRIPTION</label>
+            <!-- AI generator shortcuts -->
+            <button type="button" onclick="triggerAiDescription()" class="text-[9px] text-indigo-600 hover:underline dark:text-indigo-400 font-bold flex items-center gap-0.5">
+              🪄 AI Write Description
+            </button>
+          </div>
+          <textarea id="edit-description" rows="4" placeholder="Describe the item details..." class="w-full px-3 py-2 border rounded-xl dark:bg-slate-950 border-gray-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 bg-gray-50/30 dark:bg-slate-900/30"></textarea>
+        </div>
+
+        <div class="border-t pt-3 border-gray-50 dark:border-slate-800 space-y-2">
+          <div class="flex justify-between items-center">
+            <label class="block text-[10px] font-bold text-gray-500">SEO & KEYWORDS</label>
+            <button type="button" onclick="triggerAiSeo()" class="text-[9px] text-indigo-600 hover:underline dark:text-indigo-400 font-bold flex items-center gap-0.5">
+              🪄 AI Generate SEO
+            </button>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[9px] text-gray-400 mb-1">SEO Title</label>
+              <input type="text" id="edit-seo-title" class="w-full px-2.5 py-1.5 border rounded-lg dark:bg-slate-950 border-gray-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 bg-gray-50/30 dark:bg-slate-900/30">
+            </div>
+            <div>
+              <label class="block text-[9px] text-gray-400 mb-1">SEO Keywords</label>
+              <input type="text" id="edit-seo-keywords" placeholder="keyword1, keyword2" class="w-full px-2.5 py-1.5 border rounded-lg dark:bg-slate-950 border-gray-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 bg-gray-50/30 dark:bg-slate-900/30">
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="toggleProductModal(false)" class="w-1/3 py-2.5 border rounded-xl font-bold border-gray-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 transition">Cancel</button>
+          <button type="submit" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition">Save Product Specs</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Shared Footer -->
+  <footer id="main-footer" class="w-full"></footer>
+
+  <!-- Scripts -->
+  <script src="/js/supabase-client.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chat.js"></script>
+
+  <script>
+    let activeSellerTab = 'analytics';
+
+    function checkAuth() {
+      const userJson = localStorage.getItem('user');
+      if (!userJson) {
+        window.location.href = '/login.html';
+        return;
+      }
+      const user = JSON.parse(userJson);
+      if (user.role !== 'seller' && user.role !== 'admin' && user.role !== 'super_admin') {
+        window.location.href = '/index.html';
+        return;
+      }
+
+      document.getElementById('seller-store-name').innerText = user.role === 'admin' ? 'Admin Dashboard' : (user.full_name || 'Apex Store');
+      
+      // Configure export download link
+      document.getElementById('btn-export-products').href = apiClient.analytics.getExportCsvUrl('products');
+    }
+
+    function switchTab(tab) {
+      ['analytics', 'catalog', 'orders', 'csv'].forEach(t => {
+        const content = document.getElementById(`panel-${t}`);
+        if (content) content.classList.add('hidden');
+        
+        const btn = document.getElementById(`menu-btn-${t}`);
+        if (btn) btn.className = "w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2";
+      });
+
+      document.getElementById(`panel-${tab}`).classList.remove('hidden');
+      document.getElementById(`menu-btn-${tab}`).className = "w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold bg-indigo-50/50 text-indigo-600 dark:bg-indigo-950/20 dark:text-indigo-400 flex items-center gap-2";
+      activeSellerTab = tab;
+
+      if (tab === 'analytics') loadAnalytics();
+      if (tab === 'catalog') loadCatalog();
+      if (tab === 'orders') loadOrders();
+    }
+
+    async function loadAnalytics() {
+      try {
+        const data = await apiClient.analytics.getDashboard();
+        document.getElementById('stat-revenue').innerText = `$${data.revenue.toFixed(2)}`;
+        document.getElementById('stat-orders').innerText = data.orders_count;
+        document.getElementById('stat-conv').innerText = `${data.conversion_rate.toFixed(2)}%`;
+        document.getElementById('stat-visitors').innerText = data.visitors_count;
+      } catch (err) {
+        showToast('Error syncing analytics logs', 'error');
+      }
+    }
+
+    async function loadCatalog() {
+      const tbody = document.getElementById('catalog-table-body');
+      tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center">Syncing catalog rows...</td></tr>`;
+
+      try {
+        const products = await apiClient.products.list({ approved_only: 'false', store_id: JSON.parse(localStorage.getItem('user')).id });
+        
+        if (products.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center">Your store has no products yet. Click 'Add Product' to list one!</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = products.map(p => `
+          <tr class="hover:bg-slate-800/10">
+            <td class="p-4 font-mono font-bold text-slate-700 dark:text-slate-300">${p.sku}</td>
+            <td class="p-4 font-semibold text-slate-800 dark:text-slate-200 max-w-[200px] truncate">${p.title}</td>
+            <td class="p-4 text-indigo-600 dark:text-indigo-400 font-bold">${formatPrice(p.price, p.currency)}</td>
+            <td class="p-4 ${p.stock <= p.low_stock_threshold ? 'text-amber-500 font-bold' : ''}">${p.stock}</td>
+            <td class="p-4"><span class="px-2 py-0.5 rounded-full border text-[9px] font-bold ${p.status === 'active' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-gray-100 dark:bg-slate-800 text-gray-500'}">${p.status.toUpperCase()}</span></td>
+            <td class="p-4 flex gap-2">
+              <button onclick="editProduct('${p.id}')" class="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-700 text-white font-bold">Edit</button>
+              <button onclick="deleteProduct('${p.id}')" class="px-2.5 py-1 rounded bg-rose-600 hover:bg-rose-700 text-white font-bold">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-500">Sync issue.</td></tr>`;
+      }
+    }
+
+    async function loadOrders() {
+      const feed = document.getElementById('seller-orders-feed');
+      feed.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">Syncing incoming requests...</p>`;
+
+      try {
+        const orders = await apiClient.orders.list();
+        if (orders.length === 0) {
+          feed.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">No orders registered for your products.</p>`;
+          return;
+        }
+
+        feed.innerHTML = orders.map(o => `
+          <div class="p-6 rounded-3xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3 border-gray-50 dark:border-slate-800">
+              <div>
+                <h4 class="font-bold text-xs">Order #${o.id.substring(0, 8).toUpperCase()}</h4>
+                <p class="text-[10px] text-gray-400">Total: ${formatPrice(o.total_amount, o.currency || 'USD')} • Carrier: ${o.shipping_carrier || 'Standard'}</p>
+              </div>
+              <div class="flex gap-2">
+                <select onchange="updateOrderStatus('${o.id}', this.value)" class="px-2 py-1.5 border rounded-lg dark:bg-slate-950 text-[10px] font-bold border-gray-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+                  <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>Pending</option>
+                  <option value="confirmed" ${o.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                  <option value="packed" ${o.status === 'packed' ? 'selected' : ''}>Packed</option>
+                  <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                  <option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                </select>
+              </div>
+            </div>
+            <div class="space-y-1.5">
+              ${o.items ? o.items.map(item => `
+                <div class="flex justify-between text-xs">
+                  <span class="text-gray-400 font-medium">${item.product_title} x${item.quantity}</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-300">${formatPrice(item.price * item.quantity, o.currency || 'USD')}</span>
+                </div>
+              `).join('') : ''}
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        feed.innerHTML = `<p class="text-xs text-rose-500 text-center py-6">Failed to sync orders feed</p>`;
+      }
+    }
+
+    async function updateOrderStatus(id, status) {
+      try {
+        await apiClient.orders.updateStatus(id, status, `Order status updated by Seller Apex Electronics to: ${status}`);
+        showToast('Tracking status updated!', 'success');
+        loadOrders();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function toggleProductModal(show) {
+      const overlay = document.getElementById('product-modal-overlay');
+      if (show) {
+        overlay.classList.remove('hidden');
+      } else {
+        overlay.classList.add('hidden');
+        document.getElementById('product-form').reset();
+        document.getElementById('edit-prod-id').value = '';
+      }
+    }
+
+    async function saveProduct(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-prod-id').value;
+      const title = document.getElementById('edit-title').value.trim();
+      const price = parseFloat(document.getElementById('edit-price').value);
+      const currency = document.getElementById('edit-currency').value;
+      const stock = parseInt(document.getElementById('edit-stock').value);
+      const description = document.getElementById('edit-description').value.trim();
+      const seo_title = document.getElementById('edit-seo-title').value.trim();
+      const seo_keywords = document.getElementById('edit-seo-keywords').value.trim();
+
+      // Handle image upload or image URL input
+      let uploadedUrls = [];
+      const fileInput = document.getElementById('edit-image');
+      if (fileInput && fileInput.files.length > 0) {
+        try {
+          showToast(`Uploading ${fileInput.files.length} product image(s)...`, 'info');
+          for (let i = 0; i < fileInput.files.length; i++) {
+            const fd = new FormData();
+            fd.append('file', fileInput.files[i]);
+            const uploadRes = await apiClient.products.uploadImage(fd);
+            if (uploadRes && uploadRes.file_url) {
+              uploadedUrls.push(uploadRes.file_url);
+            }
+          }
+        } catch (err) {
+          showToast('Image upload failed: ' + err.message, 'error');
+          return;
+        }
+      }
+
+      let imageUrlsText = document.getElementById('edit-image-url').value.trim();
+      let textUrls = imageUrlsText ? imageUrlsText.split(',').map(url => url.trim()).filter(Boolean) : [];
+      let combinedImages = [...uploadedUrls, ...textUrls];
+      if (combinedImages.length === 0) {
+        combinedImages = ['https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=400&q=80'];
+      }
+
+      const prodData = { 
+        title, 
+        price, 
+        currency,
+        stock, 
+        description, 
+        seo_title, 
+        seo_keywords, 
+        images: combinedImages,
+        status: 'active' 
+      };
+
+      try {
+        if (id) {
+          await apiClient.products.update(id, prodData);
+          showToast('Product updated successfully!', 'success');
+        } else {
+          await apiClient.products.create(prodData);
+          showToast('Product added and awaiting admin approval!', 'success');
+        }
+        toggleProductModal(false);
+        loadCatalog();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function editProduct(id) {
+      try {
+        const p = await apiClient.products.get(id);
+        document.getElementById('edit-prod-id').value = p.id;
+        document.getElementById('edit-title').value = p.title;
+        document.getElementById('edit-price').value = p.price;
+        document.getElementById('edit-currency').value = p.currency || 'USD';
+        document.getElementById('edit-stock').value = p.stock;
+        document.getElementById('edit-description').value = p.description || '';
+        document.getElementById('edit-seo-title').value = p.seo_title || '';
+        document.getElementById('edit-seo-keywords').value = p.seo_keywords || '';
+        document.getElementById('edit-image-url').value = p.images ? p.images.join(', ') : '';
+
+        document.getElementById('modal-title').innerText = 'Edit Product Details';
+        toggleProductModal(true);
+      } catch (err) {
+        showToast('Failed to fetch item data', 'error');
+      }
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('Are you sure you want to delete this product?')) return;
+      try {
+        await apiClient.products.delete(id);
+        showToast('Product removed', 'success');
+        loadCatalog();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function submitBulkCsv(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('csv-file-input');
+      if (fileInput.files.length === 0) return;
+
+      const fd = new FormData();
+      fd.append('csv', fileInput.files[0]);
+
+      showToast('Importing product rows...', 'info');
+
+      try {
+        const res = await apiClient.products.bulkCsvUpload(fd);
+        showToast(`Successfully imported ${res.count} products!`, 'success');
+        fileInput.value = '';
+        switchTab('catalog');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // AI write description helper trigger
+    async function triggerAiDescription() {
+      const title = document.getElementById('edit-title').value.trim();
+      if (!title) return showToast('Please type product title first to guide AI description writer.', 'error');
+      
+      const descArea = document.getElementById('edit-description');
+      descArea.value = "Generating description details...";
+
+      try {
+        const res = await apiClient.ai.generateDescription(title, 'Electronics', []);
+        descArea.value = res.description;
+        showToast('AI Description generated!', 'success');
+      } catch (err) {
+        descArea.value = '';
+        showToast('AI description call failed', 'error');
+      }
+    }
+
+    // AI write SEO details helper trigger
+    async function triggerAiSeo() {
+      const title = document.getElementById('edit-title').value.trim();
+      const desc = document.getElementById('edit-description').value.trim();
+      if (!title) return showToast('Product title is required to generate SEO tags.', 'error');
+
+      try {
+        const res = await apiClient.ai.generateSeo(title, desc, 'gadgets, devices');
+        document.getElementById('edit-seo-title').value = res.seo_title;
+        document.getElementById('edit-seo-keywords').value = res.seo_keywords;
+        showToast('AI SEO Tags generated!', 'success');
+      } catch (err) {
+        showToast('AI SEO generator failed', 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      loadAnalytics();
+    });
+  </script>
+</body>
+</html>

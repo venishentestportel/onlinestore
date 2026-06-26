@@ -1,0 +1,35 @@
+# Netlify Configuration File
+# Configures the publish directory and redirects for a unified serverless deployment.
+
+[build]
+  # Publish directory is the root of the project
+  publish = "."
+  # Functions directory containing serverless lambda handlers
+  functions = "netlify/functions"
+
+[[redirects]]
+  # Route all frontend /api requests to the local serverless Netlify function
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  # Route uploaded store assets/images requests to the serverless function
+  from = "/uploads/*"
+  to = "/.netlify/functions/api/uploads/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  # Route compiled PDF invoices requests to the serverless function
+  from = "/invoices/*"
+  to = "/.netlify/functions/api/invoices/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  # SPA routing fallback (serves index.html for undefined frontend routes)
+  from = "/*"
+  to = "/index.html"
+  status = 200

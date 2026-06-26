@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Dashboard - OpenCarta</title>
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: { 950: '#0b0f19' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+  <!-- Shared Header -->
+  <header id="main-header" class="w-full"></header>
+
+  <!-- CUSTOMER DASHBOARD MAIN LAYOUT -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
+    
+    <div class="flex flex-col md:flex-row gap-8 items-start">
+      
+      <!-- Side navigation tabs -->
+      <aside class="w-full md:w-64 bg-white/80 dark:bg-slate-900/80 border border-gray-100 dark:border-slate-800 p-6 rounded-3xl space-y-2">
+        <div class="flex items-center gap-3 pb-6 border-b border-gray-50 dark:border-slate-800/60 mb-4">
+          <img id="user-avatar" src="" class="w-12 h-12 rounded-full border object-cover">
+          <div>
+            <h4 id="user-name" class="font-bold text-sm text-slate-800 dark:text-white truncate">Customer Name</h4>
+            <span class="text-[10px] text-gray-400 font-semibold uppercase">Customer</span>
+          </div>
+        </div>
+        <button onclick="switchTab('orders')" id="menu-btn-orders" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold bg-indigo-50/50 text-indigo-600 dark:bg-indigo-950/20 dark:text-indigo-400 flex items-center gap-2">
+          📦 My Orders
+        </button>
+        <button onclick="switchTab('wishlist')" id="menu-btn-wishlist" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2">
+          ❤️ Wishlist
+        </button>
+        <button onclick="switchTab('rewards')" id="menu-btn-rewards" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2">
+          💎 Rewards & Referral
+        </button>
+        <button onclick="switchTab('addresses')" id="menu-btn-addresses" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2">
+          📍 Addresses
+        </button>
+      </aside>
+
+      <!-- Dashboard View panels -->
+      <section class="flex-grow w-full space-y-6">
+        
+        <!-- Tab 1: Orders -->
+        <div id="panel-orders" class="space-y-4">
+          <h3 class="font-bold text-base text-slate-800 dark:text-white font-heading">Order History</h3>
+          <div id="orders-list" class="space-y-4"></div>
+        </div>
+
+        <!-- Tab 2: Wishlist -->
+        <div id="panel-wishlist" class="space-y-4 hidden">
+          <h3 class="font-bold text-base text-slate-800 dark:text-white font-heading">My Wishlist</h3>
+          <div id="wishlist-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+        </div>
+
+        <!-- Tab 3: Rewards -->
+        <div id="panel-rewards" class="space-y-6 hidden">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="glass-panel p-6 rounded-3xl border border-gray-100 dark:border-slate-800 space-y-2">
+              <h4 class="text-xs font-bold text-gray-400 uppercase">Loyalty Balance</h4>
+              <p id="rewards-points-text" class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">0 points</p>
+              <p class="text-[10px] text-gray-400">Points are earned on purchase total and can be used at checkout (10 points = $1.00).</p>
+            </div>
+            <div class="glass-panel p-6 rounded-3xl border border-gray-100 dark:border-slate-800 space-y-3">
+              <h4 class="text-xs font-bold text-gray-400 uppercase">Refer & Earn</h4>
+              <p class="text-xs text-gray-400 font-medium">Share your referral link. Friends get 50 points on registration, and you get 50 points after their first buy!</p>
+              <div class="flex gap-2">
+                <input type="text" id="referral-code-box" readonly class="flex-1 px-3 py-2 border rounded-xl dark:bg-slate-950 text-xs border-gray-200 dark:border-slate-800 text-slate-200 font-mono">
+                <button onclick="copyReferralLink()" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Addresses -->
+        <div id="panel-addresses" class="glass-panel p-8 rounded-3xl border border-gray-100 dark:border-slate-800 space-y-6 hidden">
+          <h3 class="font-bold text-base text-slate-800 dark:text-white">Saved Addresses</h3>
+          <div id="addresses-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Shared Footer -->
+  <footer id="main-footer" class="w-full"></footer>
+
+  <!-- Scripts -->
+  <script src="/js/supabase-client.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chat.js"></script>
+
+  <script>
+    let activeDashboardTab = 'orders';
+
+    function checkAuth() {
+      const user = localStorage.getItem('user');
+      if (!user) {
+        window.location.href = '/login.html';
+        return;
+      }
+      const u = JSON.parse(user);
+      document.getElementById('user-avatar').src = u.avatar_url;
+      document.getElementById('user-name').innerText = u.full_name;
+      document.getElementById('rewards-points-text').innerText = `${u.reward_points || 0} points`;
+      document.getElementById('referral-code-box').value = `https://opencarta.com/register?ref=${u.referral_code || 'APEX'}`;
+    }
+
+    function switchTab(tab) {
+      // Hide all panels
+      ['orders', 'wishlist', 'rewards', 'addresses'].forEach(t => {
+        document.getElementById(`panel-${t}`).classList.add('hidden');
+        const btn = document.getElementById(`menu-btn-${t}`);
+        if (btn) btn.className = "w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2";
+      });
+
+      // Highlight target tab
+      document.getElementById(`panel-${tab}`).classList.remove('hidden');
+      document.getElementById(`menu-btn-${tab}`).className = "w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold bg-indigo-50/50 text-indigo-600 dark:bg-indigo-950/20 dark:text-indigo-400 flex items-center gap-2";
+      activeDashboardTab = tab;
+
+      if (tab === 'orders') loadOrderLogs();
+      if (tab === 'wishlist') loadWishlistLogs();
+      if (tab === 'addresses') loadAddressLogs();
+    }
+
+    async function loadOrderLogs() {
+      const list = document.getElementById('orders-list');
+      list.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">Syncing transactions...</p>`;
+
+      try {
+        const orders = await apiClient.orders.list();
+        if (orders.length === 0) {
+          list.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">You haven't placed any orders yet.</p>`;
+          return;
+        }
+
+        list.innerHTML = orders.map(o => {
+          const formattedDate = new Date(o.created_at).toLocaleDateString();
+          const badgeClass = o.status === 'delivered' 
+            ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
+            : o.status === 'pending'
+            ? 'bg-amber-500/10 text-amber-600 border-amber-500/20'
+            : 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20';
+
+          return `
+            <div class="p-6 rounded-3xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900/60 space-y-4">
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                  <h4 class="font-bold text-xs text-slate-800 dark:text-white uppercase tracking-wider">Order #${o.id.substring(0, 8).toUpperCase()}</h4>
+                  <p class="text-[10px] text-gray-400">Placed on ${formattedDate} • Payment: ${o.payment_method.toUpperCase()}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-full border text-[10px] font-bold ${badgeClass}">${o.status.toUpperCase()}</span>
+                  ${o.payment_details && o.payment_details.invoice_pdf_url ? `
+                    <a href="${o.payment_details.invoice_pdf_url}" target="_blank" class="px-3 py-1 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 text-white rounded-lg text-[10px] font-bold flex items-center gap-1">
+                      PDF Invoice
+                    </a>
+                  ` : ''}
+                </div>
+              </div>
+
+              <!-- Order items -->
+              <div class="space-y-2.5 divide-y divide-gray-50 dark:divide-slate-800/40">
+                ${o.items ? o.items.map(item => `
+                  <div class="flex justify-between items-center text-xs pt-2">
+                    <span class="text-gray-400 font-medium">${item.product_title} x${item.quantity}</span>
+                    <span class="font-bold text-slate-700 dark:text-slate-300">${formatPrice(item.price * item.quantity, o.currency || 'USD')}</span>
+                  </div>
+                `).join('') : ''}
+              </div>
+
+              <div class="flex justify-between text-xs font-bold text-slate-800 dark:text-white pt-2 border-t border-gray-50 dark:border-slate-800/40">
+                <span>Total Amount Paid</span>
+                <span class="text-indigo-600 dark:text-indigo-400 font-extrabold">${formatPrice(o.total_amount, o.currency || 'USD')}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        list.innerHTML = `<p class="text-xs text-rose-500 text-center py-6">Sync error</p>`;
+      }
+    }
+
+    async function loadWishlistLogs() {
+      const grid = document.getElementById('wishlist-grid');
+      const wishIds = JSON.parse(localStorage.getItem('wishlist')) || [];
+      if (wishIds.length === 0) {
+        grid.innerHTML = `<p class="text-xs text-gray-400 text-center col-span-full py-6">Your wishlist is empty</p>`;
+        return;
+      }
+
+      grid.innerHTML = `<p class="text-xs text-gray-400 text-center col-span-full py-6">Loading saved items...</p>`;
+
+      try {
+        const products = await apiClient.products.list();
+        const matches = products.filter(p => wishIds.includes(p.id));
+
+        if (matches.length === 0) {
+          grid.innerHTML = `<p class="text-xs text-gray-400 text-center col-span-full py-6">Your wishlist is empty</p>`;
+          return;
+        }
+
+        grid.innerHTML = matches.map(p => `
+          <div class="glass-card bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl p-4 flex flex-col justify-between">
+            <div class="relative overflow-hidden rounded-2xl group">
+              <img src="${p.images[0]}" class="w-full h-40 object-cover rounded-2xl">
+              <button onclick="removeWishItem('${p.id}')" class="absolute top-3 right-3 p-2 rounded-xl bg-white/80 dark:bg-slate-900/80 hover:bg-rose-50 text-rose-500 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            </div>
+            <div class="pt-4 space-y-1">
+              <a href="/product.html?id=${p.id}" class="block text-xs font-bold text-slate-800 dark:text-white truncate">${p.title}</a>
+              <div class="flex items-center justify-between pt-2">
+                <span class="text-sm font-extrabold text-indigo-600 dark:text-indigo-400">${formatPrice(p.price, p.currency)}</span>
+                <button onclick="addWishToCart('${p.id}', '${p.title}', ${p.price}, '${p.images[0]}', '${p.store_id}', '${p.currency || 'USD'}')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[10px] font-bold shadow transition">
+                  Buy
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        grid.innerHTML = `<p class="text-xs text-rose-500 text-center col-span-full py-6">Sync error</p>`;
+      }
+    }
+
+    function removeWishItem(id) {
+      let wish = JSON.parse(localStorage.getItem('wishlist')) || [];
+      wish = wish.filter(w => w !== id);
+      localStorage.setItem('wishlist', JSON.stringify(wish));
+      showToast('Item removed from wishlist', 'info');
+      loadWishlistLogs();
+    }
+
+    function addWishToCart(id, title, price, img, storeId, currency) {
+      cartHelper.addToCart({ product_id: id, product_title: title, price, image_url: img, store_id: storeId, currency: currency || 'USD' });
+    }
+
+    function loadAddressLogs() {
+      const box = document.getElementById('addresses-container');
+      const mockAddress = {
+        fullName: "John Doe",
+        addressLine: "120 Market Street, Room 3A",
+        city: "San Francisco",
+        state: "California",
+        zipCode: "94103",
+        phone: "+1 (555) 123-4567"
+      };
+
+      box.innerHTML = `
+        <div class="p-5 rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 space-y-2">
+          <h4 class="font-bold text-xs text-slate-800 dark:text-white">Default Shipping Address</h4>
+          <div class="text-[11px] text-gray-400 leading-relaxed font-medium">
+            <p class="font-bold text-slate-700 dark:text-slate-300">${mockAddress.fullName}</p>
+            <p>${mockAddress.addressLine}</p>
+            <p>${mockAddress.city}, ${mockAddress.state} ${mockAddress.zipCode}</p>
+            <p class="mt-1">Phone: ${mockAddress.phone}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function copyReferralLink() {
+      const codeInput = document.getElementById('referral-code-box');
+      codeInput.select();
+      document.execCommand('copy');
+      showToast('Referral link copied to clipboard!', 'success');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      
+      // Handle tab routing via URL query params
+      const tabParam = new URLSearchParams(window.location.search).get('tab');
+      if (tabParam) {
+        switchTab(tabParam);
+      } else {
+        loadOrderLogs();
+      }
+    });
+  </script>
+</body>
+</html>
